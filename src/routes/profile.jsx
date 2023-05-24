@@ -63,7 +63,7 @@ export const Profile = () => {
             <Center>
               <Avatar
                 size="lg"
-                radius="xl"
+                radius="lg"
                 src={`https://node.deso.org/api/v0/get-single-profile-picture/${currentUser?.PublicKeyBase58Check}`}
                 alt="Profile Picture"
               />
@@ -127,7 +127,7 @@ export const Profile = () => {
             <Paper shadow="xl" radius="lg" p="xl" withBorder>
               <Text
                 size="xl"
-                lineClamp={4}
+                noBreak
                 variant="gradient"
                 gradient={{ from: "indigo", to: "cyan", deg: 45 }}
               >

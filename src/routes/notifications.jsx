@@ -3,15 +3,15 @@ import {
   Paper,
   Group,
   Text,
-  ThemeIcon,
+  Space,
   Center,
   Divider,
   List,
+  Loader,
 } from "@mantine/core";
 import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../contexts";
 import { getNotifications } from "deso-protocol";
-import { GiWaveSurfer } from "react-icons/gi";
 
 export const NotificationsPage = () => {
   const { currentUser, isLoading } = useContext(UserContext);
@@ -55,46 +55,54 @@ export const NotificationsPage = () => {
       {currentUser ? (
         <>
           <Center>
-            <List listStyleType="none" spacing="sm">
-              {notifications.map((notification, index) => (
-                <List.Item key={index}>
-                  <Paper radius="lg" shadow="lg" p="md" withBorder>
-                    <Group>
-                      <Avatar
-                        radius="sm"
-                        size="sm"
-                        src={
-                          `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
-                          null
-                        }
-                      />
-                      <Text
-                        variant="gradient"
-                        gradient={{ from: "indigo", to: "cyan", deg: 45 }}
-                        fw={500}
-                      >
-                        {notification.Metadata.TxnType}
-                      </Text>
-                    </Group>
-                  </Paper>
-                </List.Item>
-              ))}
-            </List>
+            {isLoading ? (
+              <Loader variant="bars" />
+            ) : (
+              /* Render the notifications once loaded */
+              <List listStyleType="none" spacing="sm">
+                {notifications.map((notification, index) => (
+                  <List.Item key={index}>
+                    <Paper radius="lg" shadow="lg" p="md" withBorder>
+                      <Group>
+                        <Avatar
+                          radius="sm"
+                          size="sm"
+                          src={
+                            `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
+                            null
+                          }
+                        />
+                        <Text
+                          variant="gradient"
+                          gradient={{ from: "indigo", to: "cyan", deg: 45 }}
+                          fw={500}
+                        >
+                          {notification.Metadata.TxnType}
+                        </Text>
+                      </Group>
+                    </Paper>
+                  </List.Item>
+                ))}
+              </List>
+            )}
           </Center>
         </>
       ) : (
-        <Center>
-          <Paper shadow="xl" radius="lg" p="xl" withBorder>
-            <Text
-              size="md"
+        <>
+          <Space h="xl" />
+          <Center>
+            <Paper shadow="xl" radius="lg" p="xl" withBorder>
+              <Text
+                size="md"
                 lineClamp={1}
-              variant="gradient"
-              gradient={{ from: "indigo", to: "cyan", deg: 45 }}
-            >
-              Please login to view your Notifications.
-            </Text>
-          </Paper>
-        </Center>
+                variant="gradient"
+                gradient={{ from: "indigo", to: "cyan", deg: 45 }}
+              >
+                Please login to view your Notifications.
+              </Text>
+            </Paper>
+          </Center>
+        </>
       )}
     </div>
   );

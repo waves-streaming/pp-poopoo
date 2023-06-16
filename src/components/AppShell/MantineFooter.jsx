@@ -102,7 +102,7 @@ export const MantineFooter = () => {
         <Group position="center" spacing="lg" grow noWrap>
           <ActionIcon
             size="xl"
-            radius="xs"
+            radius="xl"
             className={cx(classes.link, {
               [classes.linkActive]: active === "/",
             })}
@@ -116,7 +116,7 @@ export const MantineFooter = () => {
 
           <ActionIcon
             size="xl"
-            radius="xs"
+            radius="xl"
             className={cx(classes.link, {
               [classes.linkActive]: active === "/profile",
             })}
@@ -142,7 +142,7 @@ export const MantineFooter = () => {
 
           <ActionIcon
             size="xl"
-            radius="xs"
+            radius="xl"
             className={cx(classes.link, {
               [classes.linkActive]: active === "/wallet",
             })}
@@ -156,7 +156,7 @@ export const MantineFooter = () => {
 
           <ActionIcon
             size="xl"
-            radius="xs"
+            radius="xl"
             className={cx(classes.link, {
               [classes.linkActive]: active === "/notifications",
             })}

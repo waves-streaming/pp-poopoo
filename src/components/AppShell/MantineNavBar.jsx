@@ -268,9 +268,18 @@ export function MantineNavBar() {
         width={{ sm: 77, lg: 77 }}
       >
         <Group position="center">
-          <ActionIcon onClick={toggle}>
-            {opened ? <RiArrowLeftSFill /> : <RiArrowRightSFill />}
-          </ActionIcon>
+          {opened ? (
+            <>
+              {" "}
+              <Space h={28} />
+            </>
+          ) : (
+            <>
+              <ActionIcon onClick={toggle}>
+                <RiArrowRightSFill />
+              </ActionIcon>
+            </>
+          )}
         </Group>
         <Space h="xs" />
         <Divider my="sm" />
@@ -288,6 +297,18 @@ export function MantineNavBar() {
           width={{ sm: 233, lg: 233 }}
           className={classes.innerNavBar}
         >
+          <Space h="md" />
+          <Group position="center">
+            {opened ? (
+              <>
+                <ActionIcon onClick={toggle}>
+                  <RiArrowLeftSFill />
+                </ActionIcon>{" "}
+              </>
+            ) : null}
+          </Group>
+          <Space h="xs" />
+          <Divider my="sm" />
           <Space h="lg" />
           <Navbar.Section grow>
             <Center>
@@ -298,90 +319,88 @@ export function MantineNavBar() {
             <Space h="sm" />
             {currentUser ? (
               followingWaves && followingWaves.length > 0 ? (
-                followingWaves.map((post) => {
-                  if (
-                    post.PublicKeyBase58Check ===
-                    currentUser.PublicKeyBase58Check
-                  ) {
+                followingWaves
+                  .filter((post) => post.Username !== currentUser.Username)
+                  .map((post) => {
                     return (
                       <Center>
-                        <Text fz="xs" fw={500} lineClamp={2}>
-                          No Livestreams found.
-                        </Text>
+                        <div key={post.PublicKeyBase58Check}>
+                          <Navbar.Section
+                            className={cx(classes.link, {
+                              [classes.mainLinkActive]: post === active,
+                            })}
+                            onClick={() => {
+                              const state = {
+                                userPublicKey: post.PublicKeyBase58Check,
+                                userName:
+                                  post.Username || post.PublicKeyBase58Check,
+                                description: post.Description || null,
+                                largeProfPic:
+                                  post.ExtraData?.LargeProfilePicURL || null,
+                                featureImage:
+                                  post.ExtraData?.FeaturedImageURL || null,
+                              };
+
+                              navigate(`/wave/${post.Username}`, {
+                                state,
+                              });
+
+                              setActive(post);
+                            }}
+                          >
+                            <Group style={{ flex: 1 }} noWrap>
+                              <Space w={1} />
+                              <Avatar
+                                radius="xl"
+                                size="sm"
+                                src={
+                                  post.ExtraData?.LargeProfilePicURL ||
+                                  `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
+                                  null
+                                }
+                              />
+
+                              <span>
+                                <Text fz="xs" fw={500} truncate lineClamp={1}>
+                                  {post.Username}
+                                </Text>
+                              </span>
+                            </Group>
+                          </Navbar.Section>
+                        </div>
                       </Center>
-                    ); // Exclude current user from the list
-                  }
-
-                  return (
-                    <Center>
-                      <div key={post.PublicKeyBase58Check}>
-                        <Navbar.Section
-                          className={cx(classes.link, {
-                            [classes.mainLinkActive]: post === active,
-                          })}
-                          onClick={() => {
-                            const state = {
-                              userPublicKey: post.PublicKeyBase58Check,
-                              userName:
-                                post.Username || post.PublicKeyBase58Check,
-                              description: post.Description || null,
-                              largeProfPic:
-                                post.ExtraData?.LargeProfilePicURL || null,
-                              featureImage:
-                                post.ExtraData?.FeaturedImageURL || null,
-                            };
-
-                            navigate(`/wave/${post.Username}`, {
-                              state,
-                            });
-
-                            setActive(post);
-                          }}
-                        >
-                          <Group style={{ flex: 1 }} noWrap>
-                            <Space w={1} />
-                            <Avatar
-                              radius="xl"
-                              size="sm"
-                              src={
-                                post.ExtraData?.LargeProfilePicURL ||
-                                `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
-                                null
-                              }
-                            />
-
-                            <span>
-                              <Text fz="xs" fw={500} truncate lineClamp={1}>
-                                {post.Username}
-                              </Text>
-                            </span>
-                          </Group>
-                        </Navbar.Section>
-                      </div>
-                    </Center>
-                  );
-                })
+                    );
+                  })
               ) : (
-                <Center>
-                  <Text fz="xs" fw={500} lineClamp={2}>
-                    No Livestreams found.
-                  </Text>
-                </Center>
+                <>
+                  <Center>
+                    <Text fz="xs" fw={500} lineClamp={2}>
+                      No Followers are Live.
+                    </Text>
+                  </Center>
+                  <Space h="lg" />
+                </>
               )
             ) : (
-              <Center>
-                <Text fz="xs" fw={500} lineClamp={2}>
-                  Login to view your followings' Waves.
-                </Text>
-              </Center>
+              <>
+                <Center>
+                  <Text fz="xs" fw={500} lineClamp={2}>
+                    Login to view your Followings' Waves.
+                  </Text>
+                </Center>
+                <Space h="lg" />
+              </>
             )}
 
             <Divider my="sm" />
+            <Space h="lg" />
+
             <Center>
               <Text size="xs" weight={500} color="dimmed">
                 Recommended Waves
               </Text>
             </Center>
+
             <Space h="sm" />
             {filteredPosts && filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (

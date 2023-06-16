@@ -68,6 +68,12 @@ const useStyles = createStyles((theme) => ({
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
   },
+
+  avatar: {
+    border: `${rem(2)} solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[6] : theme.white
+    }`,
+  },
 }));
 
 export const Wave = () => {
@@ -172,19 +178,22 @@ export const Wave = () => {
     <>
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Card.Section>
-          <Image src={featureImage} height={160} withPlaceholder />
+          <Image src={featureImage} height={200} withPlaceholder />
         </Card.Section>
-        <Space h="sm" />
+
         <Center>
           <Avatar
-            size="lg"
-            radius="xl"
+            size={80}
+            radius={80}
             src={
               `https://node.deso.org/api/v0/get-single-profile-picture/${userPublicKey}` || {
                 largeProfPic,
               }
             }
             alt="Profile Picture"
+            mx="auto"
+            mt={-30}
+            className={classes.avatar}
           />
         </Center>
 

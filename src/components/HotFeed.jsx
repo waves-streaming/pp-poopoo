@@ -1,6 +1,7 @@
 import { getHotFeed, constructFollowTransaction } from "deso-protocol";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Player } from "@livepeer/react";
+import { useDisclosure } from "@mantine/hooks";
 import {
   Text,
   Avatar,
@@ -14,6 +15,8 @@ import {
   Tooltip,
   Image,
   Loader,
+  Modal,
+  UnstyledButton,
 } from "@mantine/core";
 import {
   IconHeart,
@@ -42,9 +45,12 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export const HotFeed = () => {
+  const [opened, { open, close }] = useDisclosure(false);
   const { classes } = useStyles();
   const [hotFeed, setHotFeed] = useState([]);
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState("");
+
   useEffect(() => {
     const fetchHotFeed = async () => {
       try {
@@ -60,246 +66,271 @@ export const HotFeed = () => {
 
     fetchHotFeed();
   }, []);
-  
-  const src = "https://lp-playback.com/hls/795apsmse3whsc0m/index.m3u8";
+
   return (
     <>
       <div>
         {hotFeed && hotFeed.length > 0 ? (
           hotFeed.map((post) => (
-            <Paper
-              m="md"
-              shadow="lg"
-              radius="md"
-              p="xl"
-              withBorder
-              key={post.PostHashHex}
-              className={classes.comment}
-            >
-              <Center>
-                <ActionIcon
-                  onClick={() => {
-                    const state = {
-                      userPublicKey: post.PosterPublicKeyBase58Check,
-                      userName: post.ProfileEntryResponse.Username
-                        ? post.ProfileEntryResponse.Username
-                        : post.PosterPublicKeyBase58Check,
-                      description: post.ProfileEntryResponse.Description
-                        ? post.ProfileEntryResponse.Description
-                        : null,
-
-                      largeProfPic:
-                        post.ProfileEntryResponse.ExtraData &&
-                        post.ProfileEntryResponse.ExtraData.LargeProfilePicURL
-                          ? post.ProfileEntryResponse.ExtraData
-                              .LargeProfilePicURL
+            <>
+              <Paper
+                m="md"
+                shadow="lg"
+                radius="md"
+                p="xl"
+                withBorder
+                key={post.PostHashHex}
+                className={classes.comment}
+              >
+                <Center>
+                  <ActionIcon
+                    onClick={() => {
+                      const state = {
+                        userPublicKey: post.PosterPublicKeyBase58Check,
+                        userName: post.ProfileEntryResponse.Username
+                          ? post.ProfileEntryResponse.Username
+                          : post.PosterPublicKeyBase58Check,
+                        description: post.ProfileEntryResponse.Description
+                          ? post.ProfileEntryResponse.Description
                           : null,
-                      featureImage:
-                        post.ProfileEntryResponse.ExtraData &&
-                        post.ProfileEntryResponse.ExtraData.FeaturedImageURL
-                          ? post.ProfileEntryResponse.ExtraData.FeaturedImageURL
-                          : null,
-                    };
 
-                    navigate(`/wave/${post.ProfileEntryResponse.Username}`, {
-                      state,
-                    });
-                  }}
-                  variant="transparent"
-                >
-                  <Avatar
-                    radius="xl"
-                    size="lg"
-                    src={
-                      post.ProfileEntryResponse.ExtraData?.LargeProfilePicURL ||
-                      `https://node.deso.org/api/v0/get-single-profile-picture/${post.ProfileEntryResponse.PublicKeyBase58Check}` ||
-                      null
-                    }
-                  />
+                        largeProfPic:
+                          post.ProfileEntryResponse.ExtraData &&
+                          post.ProfileEntryResponse.ExtraData.LargeProfilePicURL
+                            ? post.ProfileEntryResponse.ExtraData
+                                .LargeProfilePicURL
+                            : null,
+                        featureImage:
+                          post.ProfileEntryResponse.ExtraData &&
+                          post.ProfileEntryResponse.ExtraData.FeaturedImageURL
+                            ? post.ProfileEntryResponse.ExtraData
+                                .FeaturedImageURL
+                            : null,
+                      };
 
-                  <Space w="xs" />
-                  <Text weight="bold" size="sm">
-                    {post.ProfileEntryResponse.Username}
-                  </Text>
-                </ActionIcon>
-              </Center>
-
-              <TypographyStylesProvider>
-                <Space h="sm" />
-                <Text align="center" size="md" className={classes.body}>
-                  {post.Body}
-                </Text>
-              </TypographyStylesProvider>
-
-              <Space h="md" />
-
-              {post.RepostedPostEntryResponse && (
-                <Paper
-                  m="md"
-                  shadow="lg"
-                  radius="md"
-                  p="xl"
-                  withBorder
-                  key={post.RepostedPostEntryResponse.PostHashHex}
-                  className={classes.comment}
-                >
-                  <Center>
+                      navigate(`/wave/${post.ProfileEntryResponse.Username}`, {
+                        state,
+                      });
+                    }}
+                    variant="transparent"
+                  >
                     <Avatar
                       radius="xl"
                       size="lg"
                       src={
-                        post.RepostedPostEntryResponse?.ProfileEntryResponse
-                          ?.ExtraData?.LargeProfilePicURL ||
-                        `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                        post.ProfileEntryResponse.ExtraData
+                          ?.LargeProfilePicURL ||
+                        `https://node.deso.org/api/v0/get-single-profile-picture/${post.ProfileEntryResponse.PublicKeyBase58Check}` ||
+                        null
                       }
                     />
 
                     <Space w="xs" />
                     <Text weight="bold" size="sm">
-                      {
-                        post.RepostedPostEntryResponse.ProfileEntryResponse
-                          ?.Username
-                      }
+                      {post.ProfileEntryResponse.Username}
                     </Text>
-                  </Center>
-                  <TypographyStylesProvider>
-                    <Space h="sm" />
-                    <Text align="center" size="md" className={classes.body}>
-                      {post.RepostedPostEntryResponse.Body}
-                    </Text>
-                  </TypographyStylesProvider>
-                  <Space h="md" />
-                  {post.RepostedPostEntryResponse.VideoURLs && (
-                    <Group
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        position: "relative",
-                      }}
-                      position="center"
-                    >
-                      <iframe
-                        style={{ width: "100%", height: "100%" }}
-                        src={post.RepostedPostEntryResponse.VideoURLs}
-                        title={post.RepostedPostEntryResponse.PostHashHex}
+                  </ActionIcon>
+                </Center>
+
+                <TypographyStylesProvider>
+                  <Space h="sm" />
+                  <Text align="center" size="md" className={classes.body}>
+                    {post.Body}
+                  </Text>
+                </TypographyStylesProvider>
+
+                <Space h="md" />
+
+                {post.RepostedPostEntryResponse && (
+                  <Paper
+                    m="md"
+                    shadow="lg"
+                    radius="md"
+                    p="xl"
+                    withBorder
+                    key={post.RepostedPostEntryResponse.PostHashHex}
+                    className={classes.comment}
+                  >
+                    <Center>
+                      <Avatar
+                        radius="xl"
+                        size="lg"
+                        src={
+                          post.RepostedPostEntryResponse?.ProfileEntryResponse
+                            ?.ExtraData?.LargeProfilePicURL ||
+                          `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                        }
                       />
-                    </Group>
-                  )}
-                  {post.RepostedPostEntryResponse.ImageURLs &&
-                    post.RepostedPostEntryResponse.ImageURLs.length > 0 && (
-                      <Group position="center">
-                        <Image
-                          src={post.RepostedPostEntryResponse.ImageURLs[0]}
-                          radius="md"
-                          alt="repost-image"
-                          fit="contain"
+
+                      <Space w="xs" />
+                      <Text weight="bold" size="sm">
+                        {
+                          post.RepostedPostEntryResponse.ProfileEntryResponse
+                            ?.Username
+                        }
+                      </Text>
+                    </Center>
+                    <TypographyStylesProvider>
+                      <Space h="sm" />
+                      <Text align="center" size="md" className={classes.body}>
+                        {post.RepostedPostEntryResponse.Body}
+                      </Text>
+                    </TypographyStylesProvider>
+                    <Space h="md" />
+                    {post.RepostedPostEntryResponse.VideoURLs && (
+                      <Group
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          position: "relative",
+                        }}
+                        position="center"
+                      >
+                        <iframe
+                          style={{ width: "100%", height: "100%" }}
+                          src={post.RepostedPostEntryResponse.VideoURLs}
+                          title={post.RepostedPostEntryResponse.PostHashHex}
                         />
                       </Group>
                     )}
-                </Paper>
-              )}
+                    {post.RepostedPostEntryResponse.ImageURLs &&
+                      post.RepostedPostEntryResponse.ImageURLs.length > 0 && (
+                        <Group position="center">
+                          <UnstyledButton
+                            onClick={() => {
+                              setSelectedImage(
+                                post.RepostedPostEntryResponse.ImageURLs[0]
+                              );
+                              open();
+                            }}
+                          >
+                            <Image
+                              src={post.RepostedPostEntryResponse.ImageURLs[0]}
+                              radius="md"
+                              alt="repost-image"
+                              fit="contain"
+                            />
+                          </UnstyledButton>
+                        </Group>
+                      )}
+                  </Paper>
+                )}
 
-              {post.VideoURLs && (
-                <Group
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    position: "relative",
-                  }}
-                  position="center"
-                >
-                  <iframe
-                    style={{ width: "100%", height: "100%" }}
-                    src={post.VideoURLs}
-                    title={post.PostHashHex}
-                  />
-                </Group>
-              )}
-              {post.ImageURLs && (
-                <Group position="center">
-                  <Image
-                    src={post.ImageURLs[0]}
-                    radius="md"
-                    alt="post-image"
-                    fit="contain"
-                  />
-                </Group>
-              )}
+                {post.VideoURLs && (
+                  <Group
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      position: "relative",
+                    }}
+                    position="center"
+                  >
+                    <iframe
+                      style={{ width: "100%", height: "100%" }}
+                      src={post.VideoURLs}
+                      title={post.PostHashHex}
+                    />
+                  </Group>
+                )}
 
-              <Space h="md" />
+                {post.ImageURLs && (
+                  <Group position="center">
+                    <UnstyledButton
+                      onClick={() => {
+                        setSelectedImage(post.ImageURLs[0]);
+                        open();
+                      }}
+                    >
+                      <Image
+                        src={post.ImageURLs[0]}
+                        radius="md"
+                        alt="post-image"
+                        fit="contain"
+                      />
+                    </UnstyledButton>
+                  </Group>
+                )}
 
-              <Center>
-                <Tooltip
-                  transition="slide-down"
-                  withArrow
-                  position="bottom"
-                  label="Like"
-                >
-                  <ActionIcon variant="subtle" radius="md" size={36}>
-                    <IconHeart size={18} stroke={1.5} />
-                  </ActionIcon>
-                </Tooltip>
-                <Text size="xs" color="dimmed">
-                  {post.LikeCount}
-                </Text>
+                <Space h="md" />
 
-                <Space w="sm" />
+                <Center>
+                  <Tooltip
+                    transition="slide-down"
+                    withArrow
+                    position="bottom"
+                    label="Like"
+                  >
+                    <ActionIcon variant="subtle" radius="md" size={36}>
+                      <IconHeart size={18} stroke={1.5} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Text size="xs" color="dimmed">
+                    {post.LikeCount}
+                  </Text>
 
-                <Tooltip
-                  transition="slide-down"
-                  withArrow
-                  position="bottom"
-                  label="Repost"
-                >
-                  <ActionIcon variant="subtle" radius="md" size={36}>
-                    <IconRecycle size={18} stroke={1.5} />
-                  </ActionIcon>
-                </Tooltip>
-                <Text size="xs" color="dimmed">
-                  {post.RepostCount}
-                </Text>
+                  <Space w="sm" />
 
-                <Space w="sm" />
+                  <Tooltip
+                    transition="slide-down"
+                    withArrow
+                    position="bottom"
+                    label="Repost"
+                  >
+                    <ActionIcon variant="subtle" radius="md" size={36}>
+                      <IconRecycle size={18} stroke={1.5} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Text size="xs" color="dimmed">
+                    {post.RepostCount}
+                  </Text>
 
-                <Tooltip
-                  transition="slide-down"
-                  withArrow
-                  position="bottom"
-                  label="Diamonds"
-                >
-                  <ActionIcon variant="subtle" radius="md" size={36}>
-                    <IconDiamond size={18} stroke={1.5} />
-                  </ActionIcon>
-                </Tooltip>
-                <Text size="xs" color="dimmed">
-                  {post.DiamondCount}
-                </Text>
+                  <Space w="sm" />
 
-                <Space w="sm" />
+                  <Tooltip
+                    transition="slide-down"
+                    withArrow
+                    position="bottom"
+                    label="Diamonds"
+                  >
+                    <ActionIcon variant="subtle" radius="md" size={36}>
+                      <IconDiamond size={18} stroke={1.5} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Text size="xs" color="dimmed">
+                    {post.DiamondCount}
+                  </Text>
 
-                <Tooltip
-                  transition="slide-down"
-                  withArrow
-                  position="bottom"
-                  label="Comments"
-                >
-                  <ActionIcon variant="subtle" radius="md" size={36}>
-                    <IconMessageCircle size={18} stroke={1.5} />
-                  </ActionIcon>
-                </Tooltip>
-                <Text size="xs" color="dimmed">
-                  {post.CommentCount}
-                </Text>
-              </Center>
-            </Paper>
+                  <Space w="sm" />
+
+                  <Tooltip
+                    transition="slide-down"
+                    withArrow
+                    position="bottom"
+                    label="Comments"
+                  >
+                    <ActionIcon variant="subtle" radius="md" size={36}>
+                      <IconMessageCircle size={18} stroke={1.5} />
+                    </ActionIcon>
+                  </Tooltip>
+                  <Text size="xs" color="dimmed">
+                    {post.CommentCount}
+                  </Text>
+                </Center>
+              </Paper>
+            </>
           ))
         ) : (
           <Center>
             <Loader variant="bars" />
           </Center>
         )}
+
         <Space h={222} />
       </div>
+
+      <Modal opened={opened} onClose={close} centered>
+        <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
+      </Modal>
     </>
   );
 };

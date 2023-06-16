@@ -18,6 +18,7 @@ import {
   Textarea,
   TextInput,
   Badge,
+  rem,
 } from "@mantine/core";
 
 import { useState, useContext, useEffect } from "react";
@@ -56,6 +57,11 @@ const useStyles = createStyles((theme) => ({
     "& > p:last-child": {
       marginBottom: 0,
     },
+  },
+  avatar: {
+    border: `${rem(2)} solid ${
+      theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white
+    }`,
   },
 }));
 
@@ -204,18 +210,17 @@ export const Profile = () => {
             <Card.Section>
               <Image
                 src={profile?.Profile?.ExtraData?.FeaturedImageURL || null}
-                height={160}
+                height={200}
                 withPlaceholder
               />
             </Card.Section>
-            <Space h="sm" />
-            <Button variant="light" compact>
-              <IconSettings onClick={open} />
-            </Button>
             <Center>
               <Avatar
-                size="lg"
-                radius="xl"
+                mx="auto"
+                mt={-30}
+                className={classes.avatar}
+                size={80}
+                radius={80}
                 src={
                   `https://node.deso.org/api/v0/get-single-profile-picture/${userPublicKey}` ||
                   null
@@ -223,6 +228,10 @@ export const Profile = () => {
                 alt="Profile Picture"
               />
             </Center>
+            <Space h="sm" />
+            <Button variant="light" compact>
+              <IconSettings onClick={open} />
+            </Button>
 
             <Center>
               <Text fz="lg" fw={777} variant="gradient" truncate>

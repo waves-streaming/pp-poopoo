@@ -323,52 +323,54 @@ export function MantineNavBar() {
                   .filter((post) => post.Username !== currentUser.Username)
                   .map((post) => {
                     return (
-                      <Center>
-                        <div key={post.PublicKeyBase58Check}>
-                          <Navbar.Section
-                            className={cx(classes.link, {
-                              [classes.mainLinkActive]: post === active,
-                            })}
-                            onClick={() => {
-                              const state = {
-                                userPublicKey: post.PublicKeyBase58Check,
-                                userName:
-                                  post.Username || post.PublicKeyBase58Check,
-                                description: post.Description || null,
-                                largeProfPic:
-                                  post.ExtraData?.LargeProfilePicURL || null,
-                                featureImage:
-                                  post.ExtraData?.FeaturedImageURL || null,
-                              };
+                      <div key={post.PublicKeyBase58Check}>
+                        <Navbar.Section
+                          className={cx(classes.link, {
+                            [classes.mainLinkActive]: post === active,
+                          })}
+                          onClick={() => {
+                            const state = {
+                              userPublicKey: post.PublicKeyBase58Check,
+                              userName:
+                                post.Username || post.PublicKeyBase58Check,
+                              description: post.Description || null,
+                              largeProfPic:
+                                post.ExtraData?.LargeProfilePicURL || null,
+                              featureImage:
+                                post.ExtraData?.FeaturedImageURL || null,
+                            };
 
-                              navigate(`/wave/${post.Username}`, {
-                                state,
-                              });
+                            navigate(`/wave/${post.Username}`, {
+                              state,
+                            });
 
-                              setActive(post);
-                            }}
-                          >
-                            <Group style={{ flex: 1 }} noWrap>
-                              <Space w={1} />
-                              <Avatar
-                                radius="xl"
-                                size="sm"
-                                src={
-                                  post.ExtraData?.LargeProfilePicURL ||
-                                  `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
-                                  null
-                                }
-                              />
+                            setActive(post);
+                          }}
+                        >
+                          <Group style={{ flex: 1 }} noWrap>
+                            <Space w={1} />
+                            <Avatar
+                              radius="xl"
+                              size="sm"
+                              src={
+                                post.ExtraData?.LargeProfilePicURL ||
+                                `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
+                                null
+                              }
+                            />
 
-                              <span>
-                                <Text fz="xs" fw={500} truncate lineClamp={1}>
-                                  {post.Username}
-                                </Text>
-                              </span>
-                            </Group>
-                          </Navbar.Section>
-                        </div>
-                      </Center>
+                            <span>
+                              <Text fz="xs" fw={500} truncate lineClamp={1}>
+                                {post.Username}
+                              </Text>
+                            </span>
+                          </Group>
+                          <Space w="lg" />
+                          <Group postition="right">
+                            <RxDotFilled size={22} color="red" />{" "}
+                          </Group>
+                        </Navbar.Section>
+                      </div>
                     );
                   })
               ) : (
@@ -404,49 +406,52 @@ export function MantineNavBar() {
             <Space h="sm" />
             {filteredPosts && filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (
-                <Navbar.Section
-                  className={cx(classes.link, {
-                    [classes.mainLinkActive]: post === active,
-                  })}
-                  onClick={() => {
-                    const state = {
-                      userPublicKey: post.PublicKeyBase58Check,
-                      userName: post.Username || post.PublicKeyBase58Check,
-                      description: post.Description || null,
-                      largeProfPic: post.ExtraData?.LargeProfilePicURL || null,
-                      featureImage: post.ExtraData?.FeaturedImageURL || null,
-                    };
+                <div key={post.PublicKeyBase58Check}>
+                  <Navbar.Section
+                    className={cx(classes.link, {
+                      [classes.mainLinkActive]: post === active,
+                    })}
+                    onClick={() => {
+                      const state = {
+                        userPublicKey: post.PublicKeyBase58Check,
+                        userName: post.Username || post.PublicKeyBase58Check,
+                        description: post.Description || null,
+                        largeProfPic:
+                          post.ExtraData?.LargeProfilePicURL || null,
+                        featureImage: post.ExtraData?.FeaturedImageURL || null,
+                      };
 
-                    navigate(`/wave/${post.Username}`, {
-                      state,
-                    });
+                      navigate(`/wave/${post.Username}`, {
+                        state,
+                      });
 
-                    setActive(post);
-                  }}
-                >
-                  <Group noWrap style={{ display: "flex" }}>
-                    <Space w={1} />
-                    <Avatar
-                      radius="xl"
-                      size="sm"
-                      src={
-                        post.ExtraData?.LargeProfilePicURL ||
-                        `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
-                        null
-                      }
-                    />
+                      setActive(post);
+                    }}
+                  >
+                    <Group noWrap style={{ display: "flex" }}>
+                      <Space w={1} />
+                      <Avatar
+                        radius="xl"
+                        size="sm"
+                        src={
+                          post.ExtraData?.LargeProfilePicURL ||
+                          `https://node.deso.org/api/v0/get-single-profile-picture/${post.PublicKeyBase58Check}` ||
+                          null
+                        }
+                      />
 
-                    <span>
-                      <Text fz="xs" fw={500} lineClamp={1}>
-                        {post.Username}
-                      </Text>
-                    </span>
-                    <Space w="lg" />
-                    <Group postition="right">
-                      <RxDotFilled size={22} color="red" />{" "}
+                      <span>
+                        <Text fz="xs" fw={500} truncate lineClamp={1}>
+                          {post.Username}
+                        </Text>
+                      </span>
+                      <Space w="lg" />
+                      <Group postition="right">
+                        <RxDotFilled size={22} color="red" />{" "}
+                      </Group>
                     </Group>
-                  </Group>
-                </Navbar.Section>
+                  </Navbar.Section>
+                </div>
               ))
             ) : (
               <Navbar.Section>

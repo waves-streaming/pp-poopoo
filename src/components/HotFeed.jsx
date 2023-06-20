@@ -1,5 +1,10 @@
-import { getHotFeed, constructFollowTransaction } from "deso-protocol";
-import { useEffect, useState, useCallback } from "react";
+import {
+  getHotFeed,
+  submitPost,
+  createPostAssociation,
+  sendDiamonds,
+} from "deso-protocol";
+import { useEffect, useState, useContext } from "react";
 import { Player } from "@livepeer/react";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -17,6 +22,9 @@ import {
   Loader,
   Modal,
   UnstyledButton,
+  Collapse,
+  Textarea,
+  Button,
 } from "@mantine/core";
 import {
   IconHeart,
@@ -25,7 +33,7 @@ import {
   IconMessageCircle,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-
+import { DeSoIdentityContext } from "react-deso-protocol";
 const useStyles = createStyles((theme) => ({
   comment: {
     padding: `${theme.spacing.lg}px ${theme.spacing.xl}px`,
@@ -46,11 +54,12 @@ const useStyles = createStyles((theme) => ({
 
 export const HotFeed = () => {
   const [opened, { open, close }] = useDisclosure(false);
+
   const { classes } = useStyles();
   const [hotFeed, setHotFeed] = useState([]);
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState("");
-
+  const { currentUser, isLoading } = useContext(DeSoIdentityContext);
   useEffect(() => {
     const fetchHotFeed = async () => {
       try {
@@ -66,6 +75,102 @@ export const HotFeed = () => {
 
     fetchHotFeed();
   }, []);
+
+  const [commentToggles, setCommentToggles] = useState({});
+  const [commentPostHash, setCommentPostHash] = useState("");
+  const [comment, setComment] = useState("");
+
+  const handleCommentToggle = (postHash) => {
+    setCommentPostHash(postHash);
+    setCommentToggles((prevState) => ({
+      ...prevState,
+      [postHash]: !prevState[postHash],
+    }));
+  };
+
+  const submitComment = async () => {
+    try {
+      await submitPost({
+        UpdaterPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        ParentStakeID: commentPostHash,
+        BodyObj: {
+          Body: comment,
+          VideoURLs: [],
+          ImageURLs: [],
+        },
+      });
+
+      alert("Comment submitted successfully!");
+    } catch (error) {
+      alert("Error submitting comment. Please try again.");
+      console.error("Error submitting comment:", error);
+    }
+
+    // Reset the comment state after submitting
+    setComment("");
+  };
+
+  const [repostSuccess, setRepostSuccess] = useState(false);
+  const [currentPostHash, setCurrentPostHash] = useState("");
+  const submitRepost = async (postHash) => {
+    try {
+      await submitPost({
+        UpdaterPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        RepostedPostHashHex: postHash,
+        BodyObj: {
+          Body: "",
+          VideoURLs: [],
+          ImageURLs: [],
+        },
+      });
+      setRepostSuccess(true);
+      setCurrentPostHash(postHash);
+    } catch (error) {
+      alert("Error submitting Repost. Please try again.");
+      console.error("Error submitting Repost:", error);
+    }
+  };
+
+  const [heartSuccess, setHeartSuccess] = useState(false);
+  const [currentHeartPostHash, setCurrentHeartPostHash] = useState("");
+  const submitHeart = async (postHash) => {
+    try {
+      await createPostAssociation({
+        TransactorPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        PostHashHex: postHash,
+        AssociationType: "Reaction",
+        AssociationValue: "Heart",
+        MinFeeRateNanosPerKB: 1000,
+      });
+      setHeartSuccess(true);
+      setCurrentHeartPostHash(postHash);
+    } catch (error) {
+      alert("Error submitting heart. Please try again.");
+      console.error("Error submitting heart:", error);
+    }
+  };
+
+  const [diamondTipSuccess, setDiamondTipSuccess] = useState(false);
+  const [currentDiamondPostHash, setCurrentDiamondPostHash] = useState("");
+  const [currentDiamondPubKey, setCurrentDiamondPubKey] = useState("");
+
+  const sendDiamondTip = async (postHash, postPubKey) => {
+    setCurrentDiamondPostHash(postHash);
+    
+    try {
+      await sendDiamonds({
+        ReceiverPublicKeyBase58Check: postPubKey,
+        SenderPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        DiamondPostHashHex: postHash,
+        DiamondLevel: 1,
+        MinFeeRateNanosPerKB: 1000,
+      });
+      setDiamondTipSuccess(true);
+    } catch (error) {
+      alert("Error submitting diamond. Please try again.");
+      console.error("Error submitting diamond:", error);
+    }
+  };
 
   return (
     <>
@@ -260,8 +365,24 @@ export const HotFeed = () => {
                     position="bottom"
                     label="Like"
                   >
-                    <ActionIcon variant="subtle" radius="md" size={36}>
-                      <IconHeart size={18} stroke={1.5} />
+                    <ActionIcon
+                      onClick={() =>
+                        currentUser && submitHeart(post.PostHashHex)
+                      }
+                      variant="subtle"
+                      radius="md"
+                      size={36}
+                    >
+                      <IconHeart
+                        color={
+                          heartSuccess &&
+                          currentHeartPostHash === post.PostHashHex
+                            ? "red"
+                            : "white"
+                        }
+                        size={18}
+                        stroke={1.5}
+                      />
                     </ActionIcon>
                   </Tooltip>
                   <Text size="xs" color="dimmed">
@@ -276,8 +397,23 @@ export const HotFeed = () => {
                     position="bottom"
                     label="Repost"
                   >
-                    <ActionIcon variant="subtle" radius="md" size={36}>
-                      <IconRecycle size={18} stroke={1.5} />
+                    <ActionIcon
+                      onClick={() =>
+                        currentUser && submitRepost(post.PostHashHex)
+                      }
+                      variant="subtle"
+                      radius="md"
+                      size={36}
+                    >
+                      <IconRecycle
+                        color={
+                          repostSuccess && currentPostHash === post.PostHashHex
+                            ? "#228BE6"
+                            : "#FFFFFF"
+                        }
+                        size={18}
+                        stroke={1.5}
+                      />
                     </ActionIcon>
                   </Tooltip>
                   <Text size="xs" color="dimmed">
@@ -292,8 +428,28 @@ export const HotFeed = () => {
                     position="bottom"
                     label="Diamonds"
                   >
-                    <ActionIcon variant="subtle" radius="md" size={36}>
-                      <IconDiamond size={18} stroke={1.5} />
+                    <ActionIcon
+                      onClick={() =>
+                        currentUser &&
+                        sendDiamondTip(
+                          post.PostHashHex,
+                          post.PosterPublicKeyBase58Check
+                        )
+                      }
+                      variant="subtle"
+                      radius="md"
+                      size={36}
+                    >
+                      <IconDiamond
+                        color={
+                          diamondTipSuccess &&
+                          currentDiamondPostHash === post.PostHashHex
+                            ? "#228BE6"
+                            : "#FFFFFF"
+                        }
+                        size={18}
+                        stroke={1.5}
+                      />
                     </ActionIcon>
                   </Tooltip>
                   <Text size="xs" color="dimmed">
@@ -308,7 +464,12 @@ export const HotFeed = () => {
                     position="bottom"
                     label="Comments"
                   >
-                    <ActionIcon variant="subtle" radius="md" size={36}>
+                    <ActionIcon
+                      onClick={() => handleCommentToggle(post.PostHashHex)}
+                      variant="subtle"
+                      radius="md"
+                      size={36}
+                    >
                       <IconMessageCircle size={18} stroke={1.5} />
                     </ActionIcon>
                   </Tooltip>
@@ -316,6 +477,42 @@ export const HotFeed = () => {
                     {post.CommentCount}
                   </Text>
                 </Center>
+                <Collapse in={commentToggles[post.PostHashHex]}>
+                  <>
+                    {currentUser && currentUser.ProfileEntryResponse ? (
+                      <>
+                        <Textarea
+                          placeholder="Empower."
+                          description="Your comment"
+                          variant="filled"
+                          value={comment}
+                          onChange={(event) => setComment(event.target.value)}
+                        />
+                        <Space h="sm" />
+                        <Group position="right">
+                          <Button radius="md" onClick={() => submitComment()}>
+                            Comment
+                          </Button>
+                        </Group>
+                      </>
+                    ) : (
+                      <>
+                        <Textarea
+                          placeholder="Please Login/Signup or Set username to Comment."
+                          description="Your comment"
+                          variant="filled"
+                          disabled
+                        />
+                        <Space h="sm" />
+                        <Group position="right">
+                          <Button radius="md" disabled>
+                            Comment
+                          </Button>
+                        </Group>
+                      </>
+                    )}
+                  </>
+                </Collapse>
               </Paper>
             </>
           ))
@@ -328,7 +525,7 @@ export const HotFeed = () => {
         <Space h={222} />
       </div>
 
-      <Modal opened={opened} onClose={close} centered>
+      <Modal opened={opened} onClose={close} size="auto" centered>
         <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
       </Modal>
     </>

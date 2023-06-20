@@ -20,18 +20,55 @@ import {
   Badge,
   Loader,
   Text,
+  createStyles,
+  Progress,
 } from "@mantine/core";
 import { IconCopy, IconCheck } from "@tabler/icons-react";
-
+import { useInterval } from "@mantine/hooks";
 import { DeSoIdentityContext } from "react-deso-protocol";
+
+const useStyles = createStyles((theme) => ({
+  button: {
+    position: "relative",
+    transition: "background-color 150ms ease",
+  },
+
+  progress: {
+    ...theme.fn.cover(-1),
+    height: "auto",
+    backgroundColor: "transparent",
+    zIndex: 0,
+  },
+
+  label: {
+    position: "relative",
+    zIndex: 1,
+  },
+}));
 
 export const Stream = () => {
   const { currentUser } = useContext(DeSoIdentityContext);
   const [streamName, setStreamName] = useState("");
   const [isFollowingWaves, setisFollowingWaves] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
-
   const [disable, { toggle }] = useDisclosure(false);
+  const { classes, theme } = useStyles();
+  const [progress, setProgress] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+
+  const interval = useInterval(
+    () =>
+      setProgress((current) => {
+        if (current < 100) {
+          return current + 1;
+        }
+
+        interval.stop();
+        setLoaded(true);
+        return 0;
+      }),
+    20
+  );
 
   // Allowing user to create streams via livepeers useCreateStream hook
   const {
@@ -175,62 +212,98 @@ export const Stream = () => {
             <>
               <Center>
                 <Card shadow="sm" p="lg" radius="md" withBorder>
-                  <Button
-                    disabled={isButtonDisabled}
-                    onClick={attachStreamToDesoProfile}
-                  >
-                    Launch Wave to DeSo Profile
-                  </Button>
-
                   <Group position="center">
-                    <h4>Stream Server:</h4>
                     <CopyButton
                       value="rtmp://rtmp.livepeer.com/live"
                       timeout={2000}
                     >
                       {({ copied, copy }) => (
-                        <Tooltip
-                          position="top"
-                          label={copied ? "Copied" : "Stream Server"}
-                          withArrow
+                        <Button
+                          fullWidth
+                          color={copied ? "teal" : "blue"}
+                          onClick={copy}
                         >
-                          <ActionIcon
-                            color={copied ? "teal" : "gray"}
-                            onClick={copy}
-                          >
-                            {copied ? (
-                              <IconCheck size={16} />
-                            ) : (
-                              <IconCopy size={16} />
-                            )}
-                          </ActionIcon>
-                        </Tooltip>
+                          {copied ? (
+                            <>
+                              <Center>
+                                <h4>Stream Server</h4>
+                                <Space w="xs" />
+                                <IconCheck size={16} />
+                              </Center>
+                            </>
+                          ) : (
+                            <>
+                              <Center>
+                                <h4>Stream Server</h4>
+                                <Space w="xs" />
+                                <IconCopy size={16} />
+                              </Center>
+                            </>
+                          )}
+                        </Button>
                       )}
                     </CopyButton>
                   </Group>
-
+                  <Space h="md" />
                   <Group position="center">
-                    <h4>Stream Key:</h4>
                     <CopyButton value={stream.streamKey} timeout={2000}>
                       {({ copied, copy }) => (
-                        <Tooltip
-                          position="top"
-                          label={copied ? "Copied" : "Stream Key"}
-                          withArrow
+                        <Button
+                          fullWidth
+                          color={copied ? "teal" : "blue"}
+                          onClick={copy}
                         >
-                          <ActionIcon
-                            color={copied ? "teal" : "gray"}
-                            onClick={copy}
-                          >
-                            {copied ? (
-                              <IconCheck size={16} />
-                            ) : (
-                              <IconCopy size={16} />
-                            )}
-                          </ActionIcon>
-                        </Tooltip>
+                          {copied ? (
+                            <>
+                              <Center>
+                                <h4>Stream Key</h4>
+                                <Space w="xs" />
+                                <IconCheck size={16} />
+                              </Center>
+                            </>
+                          ) : (
+                            <>
+                              <Center>
+                                <h4>Stream Key</h4>
+                                <Space w="xs" />
+                                <IconCopy size={16} />
+                              </Center>
+                            </>
+                          )}
+                        </Button>
                       )}
                     </CopyButton>
+
+                    <Button
+                      fullWidth
+                      className={classes.button}
+                      onClick={() => {
+                        attachStreamToDesoProfile();
+                        loaded
+                          ? setLoaded(false)
+                          : !interval.active && interval.start();
+                      }}
+                      color={loaded ? "teal" : "blue"}
+                    >
+                      <div className={classes.label}>
+                        {progress !== 0
+                          ? "Launching"
+                          : loaded
+                          ? "Launched"
+                          : "Launch Wave to Deso"}
+                      </div>
+                      {progress !== 0 && (
+                        <Progress
+                          value={progress}
+                          className={classes.progress}
+                          color={theme.fn.rgba(
+                            theme.colors[theme.primaryColor][2],
+                            0.35
+                          )}
+                          radius="sm"
+                        />
+                      )}
+                    </Button>
                   </Group>
                   <Space h="md" />
                   <Group position="center">

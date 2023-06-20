@@ -174,6 +174,21 @@ export const MantineHeader = () => {
     </Link>
   ));
 
+  const handleUserSwitch = (publicKey) => {
+    identity.setActiveUser(publicKey);
+  };
+
+  const handleLogout = () => {
+    if (alternateUsers && alternateUsers.length > 0) {
+      const firstAlternateUser = alternateUsers[0];
+      identity.logout().then(() => {
+        handleUserSwitch(firstAlternateUser.PublicKeyBase58Check);
+      });
+    } else {
+      identity.logout();
+    }
+  };
+
   return (
     <nav className="main-nav">
       <div className="main-nav__user-actions">
@@ -205,7 +220,7 @@ export const MantineHeader = () => {
                     ) : (
                       <>
                         <Search />
-                        {!currentUser && (
+                        {!currentUser && !alternateUsers?.length && (
                           <>
                             <Button
                               variant="default"
@@ -294,7 +309,7 @@ export const MantineHeader = () => {
 
                               <Menu.Item
                                 icon={<IconLogout size={17} />}
-                                onClick={() => identity.logout()}
+                                onClick={handleLogout}
                               >
                                 Logout
                               </Menu.Item>

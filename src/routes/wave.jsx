@@ -99,20 +99,13 @@ export const Wave = () => {
           PublicKeyBase58Check: userPublicKey,
           GetEntriesFollowingUsername: true,
         });
-        const postData = await getPostsForUser({
-          PublicKeyBase58Check: userPublicKey,
-          NumToFetch: 25,
-        });
-        const nftData = await getNFTsForUser({
-          UserPublicKeyBase58Check: userPublicKey,
-        });
+
         const profileData = await getSingleProfile({
           Username: userName,
         });
 
         setProfile(profileData.Profile);
-        setNFTs(nftData.NFTsMap);
-        setPosts(postData.Posts);
+
         setFollowers({ following, followers });
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -173,6 +166,48 @@ export const Wave = () => {
     });
     getIsFollowingData();
   };
+
+  const fetchPosts = async () => {
+    try {
+      const postData = await getPostsForUser({
+        PublicKeyBase58Check: userPublicKey,
+        NumToFetch: 25,
+      });
+      setPosts(postData.Posts);
+    } catch (error) {
+      console.error("Error fetching user posts:", error);
+    }
+  };
+
+  const fetchNFTs = async () => {
+    try {
+      const nftData = await getNFTsForUser({
+        UserPublicKeyBase58Check: userPublicKey,
+         NumToFetch: 25,
+      });
+      setNFTs(nftData.NFTsMap);
+    } catch (error) {
+      console.error("Error fetching user NFTs:", error);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+
+    // Fetch posts if the "Posts" tab is selected
+    if (tab === "first") {
+      fetchPosts();
+    }
+
+    // Fetch NFTs if the "NFTs" tab is selected
+    if (tab === "second") {
+      fetchNFTs();
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(); // Fetch posts initially
+  }, []);
 
   return (
     <>
@@ -328,7 +363,7 @@ export const Wave = () => {
 
       <Space h="xl" />
 
-      <Tabs radius="sm" value={activeTab} onTabChange={setActiveTab}>
+      <Tabs radius="sm" value={activeTab} onTabChange={handleTabChange}>
         <Tabs.List grow position="center">
           <Tabs.Tab value="first">
             <Text fz="sm">Posts</Text>

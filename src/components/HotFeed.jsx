@@ -1,4 +1,9 @@
-import { getHotFeed, submitPost, createPostAssociation } from "deso-protocol";
+import {
+  getHotFeed,
+  submitPost,
+  createPostAssociation,
+  sendDiamonds,
+} from "deso-protocol";
 import { useEffect, useState, useContext } from "react";
 import { Player } from "@livepeer/react";
 import { useDisclosure } from "@mantine/hooks";
@@ -125,9 +130,47 @@ export const HotFeed = () => {
       console.error("Error submitting Repost:", error);
     }
   };
-  
 
- 
+  const [heartSuccess, setHeartSuccess] = useState(false);
+  const [currentHeartPostHash, setCurrentHeartPostHash] = useState("");
+  const submitHeart = async (postHash) => {
+    try {
+      await createPostAssociation({
+        TransactorPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        PostHashHex: postHash,
+        AssociationType: "Reaction",
+        AssociationValue: "Heart",
+        MinFeeRateNanosPerKB: 1000,
+      });
+      setHeartSuccess(true);
+      setCurrentHeartPostHash(postHash);
+    } catch (error) {
+      alert("Error submitting heart. Please try again.");
+      console.error("Error submitting heart:", error);
+    }
+  };
+
+  const [diamondTipSuccess, setDiamondTipSuccess] = useState(false);
+  const [currentDiamondPostHash, setCurrentDiamondPostHash] = useState("");
+  const [currentDiamondPubKey, setCurrentDiamondPubKey] = useState("");
+
+  const sendDiamondTip = async (postHash, postPubKey) => {
+    setCurrentDiamondPostHash(postHash);
+    
+    try {
+      await sendDiamonds({
+        ReceiverPublicKeyBase58Check: postPubKey,
+        SenderPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
+        DiamondPostHashHex: postHash,
+        DiamondLevel: 1,
+        MinFeeRateNanosPerKB: 1000,
+      });
+      setDiamondTipSuccess(true);
+    } catch (error) {
+      alert("Error submitting diamond. Please try again.");
+      console.error("Error submitting diamond:", error);
+    }
+  };
 
   return (
     <>
@@ -323,13 +366,20 @@ export const HotFeed = () => {
                     label="Like"
                   >
                     <ActionIcon
-                      onClick={handleClick}
+                      onClick={() =>
+                        currentUser && submitHeart(post.PostHashHex)
+                      }
                       variant="subtle"
                       radius="md"
                       size={36}
                     >
                       <IconHeart
-                        color={isClicked ? "red" : "white"}
+                        color={
+                          heartSuccess &&
+                          currentHeartPostHash === post.PostHashHex
+                            ? "red"
+                            : "white"
+                        }
                         size={18}
                         stroke={1.5}
                       />
@@ -348,7 +398,9 @@ export const HotFeed = () => {
                     label="Repost"
                   >
                     <ActionIcon
-                      onClick={() => submitRepost(post.PostHashHex)}
+                      onClick={() =>
+                        currentUser && submitRepost(post.PostHashHex)
+                      }
                       variant="subtle"
                       radius="md"
                       size={36}
@@ -376,8 +428,28 @@ export const HotFeed = () => {
                     position="bottom"
                     label="Diamonds"
                   >
-                    <ActionIcon variant="subtle" radius="md" size={36}>
-                      <IconDiamond size={18} stroke={1.5} />
+                    <ActionIcon
+                      onClick={() =>
+                        currentUser &&
+                        sendDiamondTip(
+                          post.PostHashHex,
+                          post.PosterPublicKeyBase58Check
+                        )
+                      }
+                      variant="subtle"
+                      radius="md"
+                      size={36}
+                    >
+                      <IconDiamond
+                        color={
+                          diamondTipSuccess &&
+                          currentDiamondPostHash === post.PostHashHex
+                            ? "#228BE6"
+                            : "#FFFFFF"
+                        }
+                        size={18}
+                        stroke={1.5}
+                      />
                     </ActionIcon>
                   </Tooltip>
                   <Text size="xs" color="dimmed">

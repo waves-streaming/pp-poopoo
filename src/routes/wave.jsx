@@ -28,6 +28,7 @@ import {
   Space,
   rem,
   Menu,
+  Modal,
   Center,
   Divider,
   Image,
@@ -40,9 +41,12 @@ import {
   Button,
   Textarea,
   Collapse,
+  UnstyledButton,
 } from "@mantine/core";
 import { DeSoIdentityContext } from "react-deso-protocol";
 import { RiUserUnfollowLine } from "react-icons/ri";
+import { useDisclosure } from "@mantine/hooks";
+
 const useStyles = createStyles((theme) => ({
   comment: {
     padding: `${theme.spacing.lg}px ${theme.spacing.xl}px`,
@@ -93,7 +97,8 @@ export const Wave = () => {
   const [activeTab, setActiveTab] = useState("first");
   const { currentUser } = useContext(DeSoIdentityContext);
   const [isFollowingUser, setisFollowingUser] = useState(false);
-
+  const [selectedImage, setSelectedImage] = useState("");
+  const [opened, { open, close }] = useDisclosure(false);
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -219,22 +224,18 @@ export const Wave = () => {
   }, [userPublicKey]);
 
   const [commentToggles, setCommentToggles] = useState({});
-  const [commentPostHash, setCommentPostHash] = useState("");
+
   const [comment, setComment] = useState("");
 
-  const handleCommentToggle = (postHash) => {
-    setCommentPostHash(postHash);
-    setCommentToggles((prevState) => ({
-      ...prevState,
-      [postHash]: !prevState[postHash],
-    }));
-  };
+  // Add a new state variable to track the current comment post hash
+  const [commentPostHash, setCommentPostHash] = useState("");
 
+  // Function to handle comment submission
   const submitComment = async () => {
     try {
       await submitPost({
         UpdaterPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
-        ParentStakeID: commentPostHash,
+        ParentStakeID: commentPostHash, // Use the commentPostHash as ParentStakeID
         BodyObj: {
           Body: comment,
           VideoURLs: [],
@@ -248,8 +249,19 @@ export const Wave = () => {
       console.error("Error submitting comment:", error);
     }
 
-    // Reset the comment state after submitting
+    // Reset the comment and commentPostHash state after submitting
     setComment("");
+    setCommentPostHash("");
+  };
+
+  // Function to handle toggling the comment section
+  const handleCommentToggle = (postHash) => {
+    // Update the commentPostHash state when the user clicks on the comment button
+    setCommentPostHash(postHash);
+    setCommentToggles((prevState) => ({
+      ...prevState,
+      [postHash]: !prevState[postHash],
+    }));
   };
 
   const [repostSuccess, setRepostSuccess] = useState(false);
@@ -579,12 +591,21 @@ export const Wave = () => {
                     {post.RepostedPostEntryResponse.ImageURLs &&
                       post.RepostedPostEntryResponse.ImageURLs.length > 0 && (
                         <Group position="center">
-                          <Image
-                            src={post.RepostedPostEntryResponse.ImageURLs[0]}
-                            radius="md"
-                            alt="repost-image"
-                            fit="contain"
-                          />
+                          <UnstyledButton
+                            onClick={() => {
+                              setSelectedImage(
+                                post.RepostedPostEntryResponse.ImageURLs[0]
+                              );
+                              open();
+                            }}
+                          >
+                            <Image
+                              src={post.RepostedPostEntryResponse.ImageURLs[0]}
+                              radius="md"
+                              alt="repost-image"
+                              fit="contain"
+                            />
+                          </UnstyledButton>
                         </Group>
                       )}
                   </Paper>
@@ -608,12 +629,19 @@ export const Wave = () => {
                 )}
                 {post.ImageURLs && (
                   <Group position="center">
-                    <Image
-                      src={post.ImageURLs[0]}
-                      radius="md"
-                      alt="post-image"
-                      fit="contain"
-                    />
+                    <UnstyledButton
+                      onClick={() => {
+                        setSelectedImage(post.ImageURLs[0]);
+                        open();
+                      }}
+                    >
+                      <Image
+                        src={post.ImageURLs[0]}
+                        radius="md"
+                        alt="post-image"
+                        fit="contain"
+                      />
+                    </UnstyledButton>
                   </Group>
                 )}
 
@@ -847,12 +875,19 @@ export const Wave = () => {
                   )}
                   {nft.PostEntryResponse.ImageURLs && (
                     <Group position="center">
-                      <Image
-                        src={nft.PostEntryResponse.ImageURLs[0]}
-                        radius="md"
-                        alt="post-image"
-                        fit="contain"
-                      />
+                      <UnstyledButton
+                        onClick={() => {
+                          setSelectedImage(nft.PostEntryResponse.ImageURLs[0]);
+                          open();
+                        }}
+                      >
+                        <Image
+                          src={nft.PostEntryResponse.ImageURLs[0]}
+                          radius="md"
+                          alt="repost-image"
+                          fit="contain"
+                        />
+                      </UnstyledButton>
                     </Group>
                   )}
 
@@ -865,8 +900,26 @@ export const Wave = () => {
                       position="bottom"
                       label="Like"
                     >
-                      <ActionIcon variant="subtle" radius="md" size={36}>
-                        <IconHeart size={18} stroke={1.5} />
+                      <ActionIcon
+                        onClick={() =>
+                          currentUser &&
+                          submitHeart(nft.PostEntryResponse.PostHashHex)
+                        }
+                        variant="subtle"
+                        radius="md"
+                        size={36}
+                      >
+                        <IconHeart
+                          color={
+                            heartSuccess &&
+                            currentHeartPostHash ===
+                              nft.PostEntryResponse.PostHashHex
+                              ? "red"
+                              : "white"
+                          }
+                          size={18}
+                          stroke={1.5}
+                        />
                       </ActionIcon>
                     </Tooltip>
                     <Text size="xs" color="dimmed">
@@ -881,8 +934,26 @@ export const Wave = () => {
                       position="bottom"
                       label="Repost"
                     >
-                      <ActionIcon variant="subtle" radius="md" size={36}>
-                        <IconRecycle size={18} stroke={1.5} />
+                      <ActionIcon
+                        onClick={() =>
+                          currentUser &&
+                          submitRepost(nft.PostEntryResponse.PostHashHex)
+                        }
+                        variant="subtle"
+                        radius="md"
+                        size={36}
+                      >
+                        <IconRecycle
+                          color={
+                            repostSuccess &&
+                            currentPostHash ===
+                              nft.PostEntryResponse.PostHashHex
+                              ? "#228BE6"
+                              : "#FFFFFF"
+                          }
+                          size={18}
+                          stroke={1.5}
+                        />
                       </ActionIcon>
                     </Tooltip>
                     <Text size="xs" color="dimmed">
@@ -897,8 +968,29 @@ export const Wave = () => {
                       position="bottom"
                       label="Diamonds"
                     >
-                      <ActionIcon variant="subtle" radius="md" size={36}>
-                        <IconDiamond size={18} stroke={1.5} />
+                      <ActionIcon
+                        onClick={() =>
+                          currentUser &&
+                          sendDiamondTip(
+                            nft.PostEntryResponse.PostHashHex,
+                            nft.PostEntryResponse.PosterPublicKeyBase58Check
+                          )
+                        }
+                        variant="subtle"
+                        radius="md"
+                        size={36}
+                      >
+                        <IconDiamond
+                          color={
+                            diamondTipSuccess &&
+                            currentDiamondPostHash ===
+                              nft.PostEntryResponse.PostHashHex
+                              ? "#228BE6"
+                              : "#FFFFFF"
+                          }
+                          size={18}
+                          stroke={1.5}
+                        />
                       </ActionIcon>
                     </Tooltip>
                     <Text size="xs" color="dimmed">
@@ -913,7 +1005,14 @@ export const Wave = () => {
                       position="bottom"
                       label="Comments"
                     >
-                      <ActionIcon variant="subtle" radius="md" size={36}>
+                      <ActionIcon
+                        onClick={() =>
+                          handleCommentToggle(nft.PostEntryResponse.PostHashHex)
+                        }
+                        variant="subtle"
+                        radius="md"
+                        size={36}
+                      >
                         <IconMessageCircle size={18} stroke={1.5} />
                       </ActionIcon>
                     </Tooltip>
@@ -921,6 +1020,44 @@ export const Wave = () => {
                       {nft.PostEntryResponse.CommentCount}
                     </Text>
                   </Center>
+                  <Collapse
+                    in={commentToggles[nft.PostEntryResponse.PostHashHex]}
+                  >
+                    <>
+                      {currentUser && currentUser.ProfileEntryResponse ? (
+                        <>
+                          <Textarea
+                            placeholder="Empower."
+                            description="Your comment"
+                            variant="filled"
+                            value={comment}
+                            onChange={(event) => setComment(event.target.value)}
+                          />
+                          <Space h="sm" />
+                          <Group position="right">
+                            <Button radius="md" onClick={() => submitComment()}>
+                              Comment
+                            </Button>
+                          </Group>
+                        </>
+                      ) : (
+                        <>
+                          <Textarea
+                            placeholder="Please Login/Signup or Set username to Comment."
+                            description="Your comment"
+                            variant="filled"
+                            disabled
+                          />
+                          <Space h="sm" />
+                          <Group position="right">
+                            <Button radius="md" disabled>
+                              Comment
+                            </Button>
+                          </Group>
+                        </>
+                      )}
+                    </>
+                  </Collapse>
                 </Paper>
               );
             })
@@ -942,6 +1079,10 @@ export const Wave = () => {
           )}
         </Tabs.Panel>
       </Tabs>
+
+      <Modal opened={opened} onClose={close} size="auto" centered>
+        <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
+      </Modal>
     </>
   );
 };

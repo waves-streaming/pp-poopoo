@@ -11,6 +11,8 @@ import { DeSoIdentityContext } from "react-deso-protocol";
 
 import {
   Text,
+  UnstyledButton,
+  
   Avatar,
   Group,
   Badge,
@@ -26,6 +28,7 @@ import {
   Button,
   Textarea,
   Collapse,
+  Modal
 } from "@mantine/core";
 import {
   IconHeart,
@@ -35,6 +38,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { Player } from "@livepeer/react";
+import { useDisclosure } from "@mantine/hooks";
 
 const useStyles = createStyles((theme) => ({
   comment: {
@@ -61,7 +65,8 @@ export const FollowerFeed = () => {
   const [filteredWaves, setFilteredWaves] = useState([]);
   const [waves, setWaves] = useState([]);
   const userPublicKey = currentUser?.PublicKeyBase58Check;
-
+ const [selectedImage, setSelectedImage] = useState("");
+   const [opened, { open, close }] = useDisclosure(false);
   useEffect(() => {
     const fetchFollowerFeed = async () => {
       try {
@@ -435,12 +440,21 @@ export const FollowerFeed = () => {
                     {post.RepostedPostEntryResponse.ImageURLs &&
                       post.RepostedPostEntryResponse.ImageURLs.length > 0 && (
                         <Group position="center">
-                          <Image
-                            src={post.RepostedPostEntryResponse.ImageURLs[0]}
-                            radius="md"
-                            alt="repost-image"
-                            fit="contain"
-                          />
+                          <UnstyledButton
+                            onClick={() => {
+                              setSelectedImage(
+                                post.RepostedPostEntryResponse.ImageURLs[0]
+                              );
+                              open();
+                            }}
+                          >
+                            <Image
+                              src={post.RepostedPostEntryResponse.ImageURLs[0]}
+                              radius="md"
+                              alt="repost-image"
+                              fit="contain"
+                            />
+                          </UnstyledButton>
                         </Group>
                       )}
                   </Paper>
@@ -462,13 +476,20 @@ export const FollowerFeed = () => {
                   </Group>
                 )}
                 {post.ImageURLs && (
-                  <Group position="center">
-                    <Image
-                      src={post.ImageURLs[0]}
-                      radius="md"
-                      alt="post-image"
-                      fit="contain"
-                    />
+                 <Group position="center">
+                    <UnstyledButton
+                      onClick={() => {
+                        setSelectedImage(post.ImageURLs[0]);
+                        open();
+                      }}
+                    >
+                      <Image
+                        src={post.ImageURLs[0]}
+                        radius="md"
+                        alt="post-image"
+                        fit="contain"
+                      />
+                    </UnstyledButton>
                   </Group>
                 )}
 
@@ -666,6 +687,10 @@ export const FollowerFeed = () => {
           </Center>
         )}
       </div>
+      
+       <Modal opened={opened} onClose={close} size="auto" centered>
+        <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
+      </Modal>
     </>
   );
 };

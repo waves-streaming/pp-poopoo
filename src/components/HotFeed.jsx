@@ -525,7 +525,7 @@ export const HotFeed = () => {
         <Space h={222} />
       </div>
 
-      <Modal opened={opened} onClose={close} centered>
+      <Modal opened={opened} onClose={close} size="auto" centered>
         <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
       </Modal>
     </>

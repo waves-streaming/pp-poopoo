@@ -35,6 +35,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { Player } from "@livepeer/react";
+
 const useStyles = createStyles((theme) => ({
   comment: {
     padding: `${theme.spacing.lg}px ${theme.spacing.xl}px`,
@@ -215,7 +216,6 @@ export const FollowerFeed = () => {
 
   const [diamondTipSuccess, setDiamondTipSuccess] = useState(false);
   const [currentDiamondPostHash, setCurrentDiamondPostHash] = useState("");
-  const [currentDiamondPubKey, setCurrentDiamondPubKey] = useState("");
 
   const sendDiamondTip = async (postHash, postPubKey) => {
     setCurrentDiamondPostHash(postHash);

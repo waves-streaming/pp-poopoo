@@ -91,6 +91,7 @@ export const Wave = () => {
   const { classes } = useStyles();
   const location = useLocation();
   const { pathname } = location;
+
   const userName = pathname.substring(pathname.lastIndexOf("/") + 1);
   const [posts, setPosts] = useState([]);
   const [NFTs, setNFTs] = useState([]);
@@ -159,7 +160,7 @@ export const Wave = () => {
 
       getIsFollowingData();
     }
-  }, [currentUser, isFollowingUser]);
+  }, [currentUser, profile, userName, isFollowingUser]);
 
   const getIsFollowingData = async () => {
     try {
@@ -378,9 +379,17 @@ export const Wave = () => {
         </Center>
 
         <Center>
-          <Text fz="lg" fw={777} variant="gradient" truncate>
-            {userName}'s Wave
-          </Text>
+          {profile !== null ? (
+            <>
+              <Text fz="lg" fw={777} variant="gradient" truncate>
+                {userName}'s Wave
+              </Text>
+            </>
+          ) : (
+            <Text fz="lg" fw={777} variant="gradient" truncate>
+              User does not exist
+            </Text>
+          )}
         </Center>
 
         <Space h="md" />

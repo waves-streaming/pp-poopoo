@@ -67,6 +67,19 @@ export const HotFeed = () => {
     fetchHotFeed();
   }, []);
 
+  const replaceURLs = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const atSymbolRegex = /(\S*@+\S*)/g;
+
+    const replaceLinksWithSpace = (str) => {
+      return str.replace(urlRegex, (url) => ` ${url} `);
+    };
+
+    return text
+      .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
+      .replace(atSymbolRegex, (match) => ` ${match} `);
+  };
+
   return (
     <>
       <div>
@@ -134,9 +147,14 @@ export const HotFeed = () => {
 
                 <TypographyStylesProvider>
                   <Space h="sm" />
-                  <Text align="center" size="md" className={classes.body}>
-                    {post.Body}
-                  </Text>
+                  <Text
+                    align="center"
+                    size="md"
+                    className={classes.body}
+                    dangerouslySetInnerHTML={{
+                      __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+                    }}
+                  />
                 </TypographyStylesProvider>
 
                 <Space h="md" />

@@ -90,8 +90,8 @@ const useStyles = createStyles((theme) => ({
 export const Wave = () => {
   const { classes } = useStyles();
   const location = useLocation();
-  const { userPublicKey, userName, description, largeProfPic, featureImage } =
-    location.state;
+  const { pathname } = location;
+  const userName = pathname.substring(pathname.lastIndexOf("/") + 1);
   const [posts, setPosts] = useState([]);
   const [NFTs, setNFTs] = useState([]);
   const [profile, setProfile] = useState([]);
@@ -105,28 +105,42 @@ export const Wave = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const following = await getFollowersForUser({
-          PublicKeyBase58Check: userPublicKey,
-        });
-        const followers = await getFollowersForUser({
-          PublicKeyBase58Check: userPublicKey,
-          GetEntriesFollowingUsername: true,
-        });
-
         const profileData = await getSingleProfile({
           Username: userName,
+          NoErrorOnMissing: true,
         });
 
         setProfile(profileData.Profile);
-
-        setFollowers({ following, followers });
+        console.log(profileData.Profile);
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
     };
 
     fetchProfile();
-  }, [userPublicKey]);
+  }, [userName]);
+
+  useEffect(() => {
+    if (profile) {
+      const fetchFollowerInfo = async () => {
+        try {
+          const following = await getFollowersForUser({
+            PublicKeyBase58Check: profile.PublicKeyBase58Check,
+          });
+          const followers = await getFollowersForUser({
+            PublicKeyBase58Check: profile.PublicKeyBase58Check,
+            GetEntriesFollowingUsername: true,
+          });
+
+          setFollowers({ following, followers });
+        } catch (error) {
+          console.error("Error fetching follower information:", error);
+        }
+      };
+
+      fetchFollowerInfo();
+    }
+  }, [profile]);
 
   useEffect(() => {
     if (currentUser) {
@@ -134,7 +148,7 @@ export const Wave = () => {
         try {
           const result = await getIsFollowing({
             PublicKeyBase58Check: currentUser.PublicKeyBase58Check,
-            IsFollowingPublicKeyBase58Check: userPublicKey,
+            IsFollowingPublicKeyBase58Check: profile.PublicKeyBase58Check,
           });
           console.log("Is Following:", result.IsFollowing);
           setisFollowingUser(result.IsFollowing);
@@ -151,7 +165,7 @@ export const Wave = () => {
     try {
       const result = await getIsFollowing({
         PublicKeyBase58Check: currentUser.PublicKeyBase58Check,
-        IsFollowingPublicKeyBase58Check: userPublicKey,
+        IsFollowingPublicKeyBase58Check: profile.PublicKeyBase58Check,
       });
       console.log("Is Following:", result.IsFollowing);
       setisFollowingUser(result.IsFollowing);
@@ -164,7 +178,7 @@ export const Wave = () => {
     await updateFollowingStatus({
       MinFeeRateNanosPerKB: 1000,
       IsUnfollow: false,
-      FollowedPublicKeyBase58Check: userPublicKey,
+      FollowedPublicKeyBase58Check: profile.PublicKeyBase58Check,
       FollowerPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
     });
     getIsFollowingData();
@@ -174,7 +188,7 @@ export const Wave = () => {
     await updateFollowingStatus({
       MinFeeRateNanosPerKB: 1000,
       IsUnfollow: true,
-      FollowedPublicKeyBase58Check: userPublicKey,
+      FollowedPublicKeyBase58Check: profile.PublicKeyBase58Check,
       FollowerPublicKeyBase58Check: currentUser.PublicKeyBase58Check,
     });
     getIsFollowingData();
@@ -183,7 +197,7 @@ export const Wave = () => {
   const fetchPosts = async () => {
     try {
       const postData = await getPostsForUser({
-        PublicKeyBase58Check: userPublicKey,
+        PublicKeyBase58Check: profile.PublicKeyBase58Check,
         NumToFetch: 25,
       });
       setPosts(postData.Posts);
@@ -195,7 +209,7 @@ export const Wave = () => {
   const fetchNFTs = async () => {
     try {
       const nftData = await getNFTsForUser({
-        UserPublicKeyBase58Check: userPublicKey,
+        UserPublicKeyBase58Check: profile.PublicKeyBase58Check,
         IsForSale: true,
       });
       setNFTs(nftData.NFTsMap);
@@ -220,11 +234,11 @@ export const Wave = () => {
 
   useEffect(() => {
     fetchPosts(); // Fetch posts initially
-  }, [userPublicKey]);
+  }, [profile.PublicKeyBase58Check]);
 
   useEffect(() => {
     fetchNFTs(); // Fetch NFTs initially
-  }, [userPublicKey]);
+  }, [profile.PublicKeyBase58Check]);
 
   const [commentToggles, setCommentToggles] = useState({});
 
@@ -341,7 +355,11 @@ export const Wave = () => {
     <>
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Card.Section>
-          <Image src={featureImage} height={200} withPlaceholder />
+          <Image
+            src={profile.ExtraData?.featureImage}
+            height={200}
+            withPlaceholder
+          />
         </Card.Section>
 
         <Center>
@@ -349,9 +367,8 @@ export const Wave = () => {
             size={80}
             radius={80}
             src={
-              `https://node.deso.org/api/v0/get-single-profile-picture/${userPublicKey}` || {
-                largeProfPic,
-              }
+              `https://node.deso.org/api/v0/get-single-profile-picture/${profile.PublicKeyBase58Check}` ||
+              profile.ExtraData.LargeProfilePicURL
             }
             alt="Profile Picture"
             mx="auto"
@@ -409,7 +426,7 @@ export const Wave = () => {
               whiteSpace: "wrap",
             }}
           >
-            {description}
+            {profile.Description}
           </Text>
         </Paper>
 
@@ -527,7 +544,7 @@ export const Wave = () => {
                     <Avatar
                       radius="xl"
                       size="lg"
-                      src={`https://node.deso.org/api/v0/get-single-profile-picture/${userPublicKey}`}
+                      src={`https://node.deso.org/api/v0/get-single-profile-picture/${profile.PublicKeyBase58Check}`}
                     />
                   )}
 
@@ -895,7 +912,7 @@ export const Wave = () => {
                       size="lg"
                       radius="xl"
                       src={
-                        `https://node.deso.org/api/v0/get-single-profile-picture/${userPublicKey}` ||
+                        `https://node.deso.org/api/v0/get-single-profile-picture/${profile.PublicKeyBase58Check}` ||
                         null
                       }
                       alt="Profile Picture"

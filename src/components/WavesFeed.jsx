@@ -112,6 +112,7 @@ useEffect(() => {
               </Center>
               <Space h="xl" />
               <Player
+             style={{ width: '100%' }}
                 playbackId={post.ExtraData.WavesStreamPlaybackId}
                 title={post.ExtraData.WavesStreamTitle}
                 automute

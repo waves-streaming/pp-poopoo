@@ -17,12 +17,15 @@ import {
   Loader,
   Modal,
   UnstyledButton,
+  Spoiler,
 } from "@mantine/core";
 import {
   IconHeart,
   IconDiamond,
   IconRecycle,
   IconMessageCircle,
+  IconScriptPlus,
+  IconScriptMinus,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 
@@ -70,10 +73,6 @@ export const HotFeed = () => {
   const replaceURLs = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const atSymbolRegex = /(\S*@+\S*)/g;
-
-    const replaceLinksWithSpace = (str) => {
-      return str.replace(urlRegex, (url) => ` ${url} `);
-    };
 
     return text
       .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
@@ -144,19 +143,37 @@ export const HotFeed = () => {
                     </Text>
                   </ActionIcon>
                 </Center>
-
-                <TypographyStylesProvider>
-                  <Space h="sm" />
-                  <Text
-                    align="center"
-                    size="md"
-                    className={classes.body}
-                    dangerouslySetInnerHTML={{
-                      __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
-                    }}
-                  />
-                </TypographyStylesProvider>
-
+                <Spoiler
+                  maxHeight={222}
+                  showLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show More">
+                        <IconScriptPlus />
+                      </Tooltip>
+                    </>
+                  }
+                  hideLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show Less">
+                        <IconScriptMinus />
+                      </Tooltip>
+                    </>
+                  }
+                >
+                  <TypographyStylesProvider>
+                    <Space h="sm" />
+                    <Text
+                      align="center"
+                      size="md"
+                      className={classes.body}
+                      dangerouslySetInnerHTML={{
+                        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+                      }}
+                    />
+                  </TypographyStylesProvider>
+                </Spoiler>
                 <Space h="md" />
 
                 {post.RepostedPostEntryResponse && (

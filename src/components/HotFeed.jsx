@@ -25,12 +25,15 @@ import {
   Collapse,
   Textarea,
   Button,
+  Spoiler
 } from "@mantine/core";
 import {
   IconHeart,
   IconDiamond,
   IconRecycle,
   IconMessageCircle,
+  IconScriptPlus,
+  IconScriptMinus
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { DeSoIdentityContext } from "react-deso-protocol";
@@ -152,7 +155,6 @@ export const HotFeed = () => {
 
   const [diamondTipSuccess, setDiamondTipSuccess] = useState(false);
   const [currentDiamondPostHash, setCurrentDiamondPostHash] = useState("");
-  const [currentDiamondPubKey, setCurrentDiamondPubKey] = useState("");
 
   const sendDiamondTip = async (postHash, postPubKey) => {
     setCurrentDiamondPostHash(postHash);
@@ -171,6 +173,17 @@ export const HotFeed = () => {
       console.error("Error submitting diamond:", error);
     }
   };
+  
+  
+   const replaceURLs = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const atSymbolRegex = /(\S*@+\S*)/g;
+
+    return text
+      .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
+      .replace(atSymbolRegex, (match) => ` ${match} `);
+  };
+
 
   return (
     <>
@@ -237,12 +250,37 @@ export const HotFeed = () => {
                   </ActionIcon>
                 </Center>
 
-                <TypographyStylesProvider>
-                  <Space h="sm" />
-                  <Text align="center" size="md" className={classes.body}>
-                    {post.Body}
-                  </Text>
-                </TypographyStylesProvider>
+      <Spoiler
+                  maxHeight={222}
+                  showLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show More">
+                        <IconScriptPlus />
+                      </Tooltip>
+                    </>
+                  }
+                  hideLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show Less">
+                        <IconScriptMinus />
+                      </Tooltip>
+                    </>
+                  }
+                >
+                  <TypographyStylesProvider>
+                    <Space h="sm" />
+                    <Text
+                      align="center"
+                      size="md"
+                      className={classes.body}
+                      dangerouslySetInnerHTML={{
+                        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+                      }}
+                    />
+                  </TypographyStylesProvider>
+                </Spoiler>
 
                 <Space h="md" />
 

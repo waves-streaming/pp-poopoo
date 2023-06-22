@@ -381,19 +381,20 @@ export const Profile = () => {
                         </>
                       }
                     >
-                      <TypographyStylesProvider>
-                        <Space h="sm" />
-                        <Text
-                          align="center"
-                          size="md"
-                          className={classes.body}
-                          dangerouslySetInnerHTML={{
-                            __html: replaceURLs(
-                              post.Body.replace(/\n/g, "<br> ")
-                            ),
-                          }}
-                        />
-                      </TypographyStylesProvider>
+                   <TypographyStylesProvider>
+  <Space h="sm" />
+  {post && post.Body && (
+    <Text
+      align="center"
+      size="md"
+      className={classes.body}
+      dangerouslySetInnerHTML={{
+        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+      }}
+    />
+  )}
+</TypographyStylesProvider>
+
                     </Spoiler>
 
                     <Space h="md" />
@@ -447,22 +448,22 @@ export const Profile = () => {
                             </>
                           }
                         >
-                          <TypographyStylesProvider>
-                            <Space h="sm" />
-                            <Text
-                              align="center"
-                              size="md"
-                              className={classes.body}
-                              dangerouslySetInnerHTML={{
-                                __html: replaceURLs(
-                                  post.RepostedPostEntryResponse.Body.replace(
-                                    /\n/g,
-                                    "<br> "
-                                  )
-                                ),
-                              }}
-                            />
-                          </TypographyStylesProvider>
+                        <TypographyStylesProvider>
+  <Space h="sm" />
+  {post.RepostedPostEntryResponse && (
+    <Text
+      align="center"
+      size="md"
+      className={classes.body}
+      dangerouslySetInnerHTML={{
+        __html: replaceURLs(
+          post.RepostedPostEntryResponse.Body.replace(/\n/g, "<br> ")
+        ),
+      }}
+    />
+  )}
+</TypographyStylesProvider>
+
                         </Spoiler>
                         <Space h="md" />
                         <Space h="md" />
@@ -626,14 +627,16 @@ export const Profile = () => {
                       </Center>
                       <Space h="sm" />
                       <TypographyStylesProvider>
-                        <Text align="center" size="md" className={classes.body}   dangerouslySetInnerHTML={{
-                            __html: replaceURLs(
-                              nft.Body.replace(/\n/g, "<br> ")
-                            ),
-                          }}>
-                          {nft.PostEntryResponse.Body}
-                        </Text>
-                      </TypographyStylesProvider>
+  <Text
+    align="center"
+    size="md"
+    className={classes.body}
+    dangerouslySetInnerHTML={{
+      __html: replaceURLs(nft && nft.Body ? nft.Body.replace(/\n/g, "<br> ") : ''),
+    }}
+  />
+</TypographyStylesProvider>
+
                       <Space h="md" />
                       {nft.PostEntryResponse.VideoURLs && (
                         <Group

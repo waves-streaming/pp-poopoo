@@ -645,20 +645,11 @@ export const Wave = () => {
                     <Space h="md" />
 
                     {post.RepostedPostEntryResponse.VideoURLs && (
-                      <Group
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          position: "relative",
-                        }}
-                        position="center"
-                      >
-                        <iframe
-                          style={{ width: "100%", height: "100%" }}
-                          src={post.RepostedPostEntryResponse.VideoURLs}
-                          title={post.RepostedPostEntryResponse.PostHashHex}
-                        />
-                      </Group>
+                      <iframe
+                        style={{ width: "100%", height: "100%" }}
+                        src={post.RepostedPostEntryResponse.VideoURLs}
+                        title={post.RepostedPostEntryResponse.PostHashHex}
+                      />
                     )}
 
                     {post.RepostedPostEntryResponse.ImageURLs &&
@@ -685,20 +676,11 @@ export const Wave = () => {
                 )}
 
                 {post.VideoURLs && (
-                  <Group
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      position: "relative",
-                    }}
-                    position="center"
-                  >
-                    <iframe
-                      style={{ width: "100%", height: "100%" }}
-                      title={post.PostHashHex}
-                      src={post.VideoURLs}
-                    />
-                  </Group>
+                  <iframe
+                    style={{ width: "100%", height: "100%" }}
+                    title={post.PostHashHex}
+                    src={post.VideoURLs}
+                  />
                 )}
                 {post.ImageURLs && (
                   <Group position="center">
@@ -941,20 +923,11 @@ export const Wave = () => {
 
                   <Space h="md" />
                   {nft.PostEntryResponse.VideoURLs && (
-                    <Group
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        position: "relative",
-                      }}
-                      position="center"
-                    >
-                      <iframe
-                        style={{ width: "100%", height: "100%" }}
-                        src={nft.VideoURLs}
-                        title={nft.PostHashHex}
-                      />
-                    </Group>
+                    <iframe
+                      style={{ width: "100%", height: "100%" }}
+                      src={nft.VideoURLs}
+                      title={nft.PostHashHex}
+                    />
                   )}
                   {nft.PostEntryResponse.ImageURLs && (
                     <Group position="center">

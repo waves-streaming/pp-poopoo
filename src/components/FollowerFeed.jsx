@@ -489,20 +489,11 @@ export const FollowerFeed = () => {
                     <Space h="md" />
 
                     {post.RepostedPostEntryResponse.VideoURLs && (
-                      <Group
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          position: "relative",
-                        }}
-                        position="center"
-                      >
-                        <iframe
-                          style={{ width: "100%", height: "100%" }}
-                          src={post.RepostedPostEntryResponse.VideoURLs}
-                          title={post.RepostedPostEntryResponse.PostHashHex}
-                        />
-                      </Group>
+                      <iframe
+                        style={{ width: "100%", height: "100%" }}
+                        src={post.RepostedPostEntryResponse.VideoURLs}
+                        title={post.RepostedPostEntryResponse.PostHashHex}
+                      />
                     )}
                     {post.RepostedPostEntryResponse.ImageURLs &&
                       post.RepostedPostEntryResponse.ImageURLs.length > 0 && (
@@ -527,20 +518,11 @@ export const FollowerFeed = () => {
                   </Paper>
                 )}
                 {post.VideoURLs && (
-                  <Group
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      position: "relative",
-                    }}
-                    position="center"
-                  >
-                    <iframe
-                      style={{ width: "100%", height: "100%" }}
-                      src={post.VideoURLs}
-                      title={post.PostHashHex}
-                    />
-                  </Group>
+                  <iframe
+                    style={{ width: "100%", height: "100%" }}
+                    src={post.VideoURLs}
+                    title={post.PostHashHex}
+                  />
                 )}
                 {post.ImageURLs && (
                   <Group position="center">

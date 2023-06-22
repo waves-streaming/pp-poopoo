@@ -381,20 +381,21 @@ export const Profile = () => {
                         </>
                       }
                     >
-                   <TypographyStylesProvider>
-  <Space h="sm" />
-  {post && post.Body && (
-    <Text
-      align="center"
-      size="md"
-      className={classes.body}
-      dangerouslySetInnerHTML={{
-        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
-      }}
-    />
-  )}
-</TypographyStylesProvider>
-
+                      <TypographyStylesProvider>
+                        <Space h="sm" />
+                        {post && post.Body && (
+                          <Text
+                            align="center"
+                            size="md"
+                            className={classes.body}
+                            dangerouslySetInnerHTML={{
+                              __html: replaceURLs(
+                                post.Body.replace(/\n/g, "<br> ")
+                              ),
+                            }}
+                          />
+                        )}
+                      </TypographyStylesProvider>
                     </Spoiler>
 
                     <Space h="md" />
@@ -448,22 +449,24 @@ export const Profile = () => {
                             </>
                           }
                         >
-                        <TypographyStylesProvider>
-  <Space h="sm" />
-  {post.RepostedPostEntryResponse && (
-    <Text
-      align="center"
-      size="md"
-      className={classes.body}
-      dangerouslySetInnerHTML={{
-        __html: replaceURLs(
-          post.RepostedPostEntryResponse.Body.replace(/\n/g, "<br> ")
-        ),
-      }}
-    />
-  )}
-</TypographyStylesProvider>
-
+                          <TypographyStylesProvider>
+                            <Space h="sm" />
+                            {post.RepostedPostEntryResponse && (
+                              <Text
+                                align="center"
+                                size="md"
+                                className={classes.body}
+                                dangerouslySetInnerHTML={{
+                                  __html: replaceURLs(
+                                    post.RepostedPostEntryResponse.Body.replace(
+                                      /\n/g,
+                                      "<br> "
+                                    )
+                                  ),
+                                }}
+                              />
+                            )}
+                          </TypographyStylesProvider>
                         </Spoiler>
                         <Space h="md" />
                         <Space h="md" />
@@ -485,20 +488,11 @@ export const Profile = () => {
                     )}
 
                     {post.VideoURLs && (
-                      <Group
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          position: "relative",
-                        }}
-                        position="center"
-                      >
-                        <iframe
-                          style={{ width: "100%", height: "100%" }}
-                          title={post.PostHashHex}
-                          src={post.VideoURLs}
-                        />
-                      </Group>
+                      <iframe
+                        style={{ width: "100%", height: "100%" }}
+                        title={post.PostHashHex}
+                        src={post.VideoURLs}
+                      />
                     )}
                     {post.ImageURLs && (
                       <Group position="center">
@@ -627,32 +621,27 @@ export const Profile = () => {
                       </Center>
                       <Space h="sm" />
                       <TypographyStylesProvider>
-  <Text
-    align="center"
-    size="md"
-    className={classes.body}
-    dangerouslySetInnerHTML={{
-      __html: replaceURLs(nft && nft.Body ? nft.Body.replace(/\n/g, "<br> ") : ''),
-    }}
-  />
-</TypographyStylesProvider>
+                        <Text
+                          align="center"
+                          size="md"
+                          className={classes.body}
+                          dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              nft && nft.Body
+                                ? nft.Body.replace(/\n/g, "<br> ")
+                                : ""
+                            ),
+                          }}
+                        />
+                      </TypographyStylesProvider>
 
                       <Space h="md" />
                       {nft.PostEntryResponse.VideoURLs && (
-                        <Group
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            position: "relative",
-                          }}
-                          position="center"
-                        >
-                          <iframe
-                            style={{ width: "100%", height: "100%" }}
-                            src={nft.VideoURLs}
-                            title={nft.PostHashHex}
-                          />
-                        </Group>
+                        <iframe
+                          style={{ width: "100%", height: "100%" }}
+                          src={nft.VideoURLs}
+                          title={nft.PostHashHex}
+                        />
                       )}
                       {nft.PostEntryResponse.ImageURLs && (
                         <Group position="center">

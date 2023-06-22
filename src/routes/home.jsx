@@ -9,7 +9,7 @@ import { GiWaveCrest } from "react-icons/gi";
 import { FaUsers } from "react-icons/fa";
 
 export const Home = () => {
-  const [activeTab, setActiveTab] = useState("third");
+  const [activeTab, setActiveTab] = useState("first");
 
   return (
     <>

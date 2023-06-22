@@ -25,7 +25,7 @@ import {
   Collapse,
   Textarea,
   Button,
-  Spoiler
+  Spoiler,
 } from "@mantine/core";
 import {
   IconHeart,
@@ -33,7 +33,7 @@ import {
   IconRecycle,
   IconMessageCircle,
   IconScriptPlus,
-  IconScriptMinus
+  IconScriptMinus,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import { DeSoIdentityContext } from "react-deso-protocol";
@@ -158,7 +158,7 @@ export const HotFeed = () => {
 
   const sendDiamondTip = async (postHash, postPubKey) => {
     setCurrentDiamondPostHash(postHash);
-    
+
     try {
       await sendDiamonds({
         ReceiverPublicKeyBase58Check: postPubKey,
@@ -173,9 +173,8 @@ export const HotFeed = () => {
       console.error("Error submitting diamond:", error);
     }
   };
-  
-  
-   const replaceURLs = (text) => {
+
+  const replaceURLs = (text) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     const atSymbolRegex = /(\S*@+\S*)/g;
 
@@ -183,7 +182,6 @@ export const HotFeed = () => {
       .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
       .replace(atSymbolRegex, (match) => ` ${match} `);
   };
-
 
   return (
     <>
@@ -250,7 +248,7 @@ export const HotFeed = () => {
                   </ActionIcon>
                 </Center>
 
-      <Spoiler
+                <Spoiler
                   maxHeight={222}
                   showLabel={
                     <>
@@ -313,12 +311,43 @@ export const HotFeed = () => {
                         }
                       </Text>
                     </Center>
-                    <TypographyStylesProvider>
-                      <Space h="sm" />
-                      <Text align="center" size="md" className={classes.body}>
-                        {post.RepostedPostEntryResponse.Body}
-                      </Text>
-                    </TypographyStylesProvider>
+                    <Spoiler
+                      maxHeight={222}
+                      showLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show More">
+                            <IconScriptPlus />
+                          </Tooltip>
+                        </>
+                      }
+                      hideLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show Less">
+                            <IconScriptMinus />
+                          </Tooltip>
+                        </>
+                      }
+                    >
+                      <TypographyStylesProvider>
+                        <Space h="sm" />
+                        <Text
+                          align="center"
+                          size="md"
+                          className={classes.body}
+                          dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              post.RepostedPostEntryResponse.Body.replace(
+                                /\n/g,
+                                "<br> "
+                              )
+                            ),
+                          }}
+                        />
+                      </TypographyStylesProvider>
+                    </Spoiler>
+
                     <Space h="md" />
                     {post.RepostedPostEntryResponse.VideoURLs && (
                       <Group

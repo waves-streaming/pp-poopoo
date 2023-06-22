@@ -101,7 +101,7 @@ export const Wave = () => {
   const [isFollowingUser, setisFollowingUser] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
-  
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -558,14 +558,18 @@ export const Wave = () => {
                 >
                   <TypographyStylesProvider>
                     <Space h="sm" />
-                    <Text
-                      align="center"
-                      size="md"
-                      className={classes.body}
-                      dangerouslySetInnerHTML={{
-                        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
-                      }}
-                    />
+                    {post && post.Body && (
+                      <Text
+                        align="center"
+                        size="md"
+                        className={classes.body}
+                        dangerouslySetInnerHTML={{
+                          __html: replaceURLs(
+                            post.Body.replace(/\n/g, "<br> ")
+                          ),
+                        }}
+                      />
+                    )}
                   </TypographyStylesProvider>
                 </Spoiler>
 
@@ -621,19 +625,21 @@ export const Wave = () => {
                     >
                       <TypographyStylesProvider>
                         <Space h="sm" />
-                        <Text
-                          align="center"
-                          size="md"
-                          className={classes.body}
-                          dangerouslySetInnerHTML={{
-                            __html: replaceURLs(
-                              post.RepostedPostEntryResponse.Body.replace(
-                                /\n/g,
-                                "<br> "
-                              )
-                            ),
-                          }}
-                        />
+                        {post.RepostedPostEntryResponse && (
+                          <Text
+                            align="center"
+                            size="md"
+                            className={classes.body}
+                            dangerouslySetInnerHTML={{
+                              __html: replaceURLs(
+                                post.RepostedPostEntryResponse.Body.replace(
+                                  /\n/g,
+                                  "<br> "
+                                )
+                              ),
+                            }}
+                          />
+                        )}
                       </TypographyStylesProvider>
                     </Spoiler>
                     <Space h="md" />
@@ -919,14 +925,20 @@ export const Wave = () => {
                   </Center>
                   <Space h="sm" />
                   <TypographyStylesProvider>
-                    <Text align="center" size="md" className={classes.body}   dangerouslySetInnerHTML={{
-                            __html: replaceURLs(
-                              nft.Body.replace(/\n/g, "<br> ")
-                            ),
-                          }}>
-                      {nft.PostEntryResponse.Body}
-                    </Text>
+                    <Text
+                      align="center"
+                      size="md"
+                      className={classes.body}
+                      dangerouslySetInnerHTML={{
+                        __html: replaceURLs(
+                          nft && nft.Body
+                            ? nft.Body.replace(/\n/g, "<br> ")
+                            : ""
+                        ),
+                      }}
+                    />
                   </TypographyStylesProvider>
+
                   <Space h="md" />
                   {nft.PostEntryResponse.VideoURLs && (
                     <Group

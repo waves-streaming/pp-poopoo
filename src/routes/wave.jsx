@@ -6,6 +6,8 @@ import {
   IconDiamond,
   IconRecycle,
   IconMessageCircle,
+  IconScriptPlus,
+  IconScriptMinus,
 } from "@tabler/icons-react";
 import {
   getFollowersForUser,
@@ -27,7 +29,7 @@ import {
   Card,
   Space,
   rem,
-  Menu,
+  Spoiler,
   Modal,
   Center,
   Divider,
@@ -99,6 +101,7 @@ export const Wave = () => {
   const [isFollowingUser, setisFollowingUser] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
   const [opened, { open, close }] = useDisclosure(false);
+  
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -325,6 +328,15 @@ export const Wave = () => {
     }
   };
 
+  const replaceURLs = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const atSymbolRegex = /(\S*@+\S*)/g;
+
+    return text
+      .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
+      .replace(atSymbolRegex, (match) => ` ${match} `);
+  };
+
   return (
     <>
       <Card shadow="sm" padding="lg" radius="md" withBorder>
@@ -525,12 +537,37 @@ export const Wave = () => {
                   </Text>
                 </Center>
 
-                <TypographyStylesProvider>
-                  <Space h="sm" />
-                  <Text align="center" size="md" className={classes.body}>
-                    {post.Body}
-                  </Text>
-                </TypographyStylesProvider>
+                <Spoiler
+                  maxHeight={222}
+                  showLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show More">
+                        <IconScriptPlus />
+                      </Tooltip>
+                    </>
+                  }
+                  hideLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show Less">
+                        <IconScriptMinus />
+                      </Tooltip>
+                    </>
+                  }
+                >
+                  <TypographyStylesProvider>
+                    <Space h="sm" />
+                    <Text
+                      align="center"
+                      size="md"
+                      className={classes.body}
+                      dangerouslySetInnerHTML={{
+                        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+                      }}
+                    />
+                  </TypographyStylesProvider>
+                </Spoiler>
 
                 <Space h="md" />
 
@@ -563,12 +600,42 @@ export const Wave = () => {
                         }
                       </Text>
                     </Center>
-                    <TypographyStylesProvider>
-                      <Space h="sm" />
-                      <Text align="center" size="md" className={classes.body}>
-                        {post.RepostedPostEntryResponse.Body}
-                      </Text>
-                    </TypographyStylesProvider>
+                    <Spoiler
+                      maxHeight={222}
+                      showLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show More">
+                            <IconScriptPlus />
+                          </Tooltip>
+                        </>
+                      }
+                      hideLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show Less">
+                            <IconScriptMinus />
+                          </Tooltip>
+                        </>
+                      }
+                    >
+                      <TypographyStylesProvider>
+                        <Space h="sm" />
+                        <Text
+                          align="center"
+                          size="md"
+                          className={classes.body}
+                          dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              post.RepostedPostEntryResponse.Body.replace(
+                                /\n/g,
+                                "<br> "
+                              )
+                            ),
+                          }}
+                        />
+                      </TypographyStylesProvider>
+                    </Spoiler>
                     <Space h="md" />
 
                     {post.RepostedPostEntryResponse.VideoURLs && (
@@ -852,7 +919,11 @@ export const Wave = () => {
                   </Center>
                   <Space h="sm" />
                   <TypographyStylesProvider>
-                    <Text align="center" size="md" className={classes.body}>
+                    <Text align="center" size="md" className={classes.body}   dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              nft.Body.replace(/\n/g, "<br> ")
+                            ),
+                          }}>
                       {nft.PostEntryResponse.Body}
                     </Text>
                   </TypographyStylesProvider>

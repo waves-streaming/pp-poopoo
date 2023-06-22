@@ -12,7 +12,6 @@ import { DeSoIdentityContext } from "react-deso-protocol";
 import {
   Text,
   UnstyledButton,
-  
   Avatar,
   Group,
   Badge,
@@ -28,10 +27,13 @@ import {
   Button,
   Textarea,
   Collapse,
-  Modal
+  Modal,
+  Spoiler,
 } from "@mantine/core";
 import {
   IconHeart,
+  IconScriptPlus,
+  IconScriptMinus,
   IconDiamond,
   IconRecycle,
   IconMessageCircle,
@@ -65,8 +67,8 @@ export const FollowerFeed = () => {
   const [filteredWaves, setFilteredWaves] = useState([]);
   const [waves, setWaves] = useState([]);
   const userPublicKey = currentUser?.PublicKeyBase58Check;
- const [selectedImage, setSelectedImage] = useState("");
-   const [opened, { open, close }] = useDisclosure(false);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [opened, { open, close }] = useDisclosure(false);
   useEffect(() => {
     const fetchFollowerFeed = async () => {
       try {
@@ -240,6 +242,15 @@ export const FollowerFeed = () => {
     }
   };
 
+  const replaceURLs = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const atSymbolRegex = /(\S*@+\S*)/g;
+
+    return text
+      .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
+      .replace(atSymbolRegex, (match) => ` ${match} `);
+  };
+
   return (
     <>
       <div>
@@ -375,14 +386,40 @@ export const FollowerFeed = () => {
                   </ActionIcon>
                 </Center>
 
-                <TypographyStylesProvider>
-                  <Space h="sm" />
-                  <Text align="center" size="md" className={classes.body}>
-                    {post.Body}
-                  </Text>
-                </TypographyStylesProvider>
+                <Spoiler
+                  maxHeight={222}
+                  showLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show More">
+                        <IconScriptPlus />
+                      </Tooltip>
+                    </>
+                  }
+                  hideLabel={
+                    <>
+                      <Space h="xs" />
+                      <Tooltip label="Show Less">
+                        <IconScriptMinus />
+                      </Tooltip>
+                    </>
+                  }
+                >
+                  <TypographyStylesProvider>
+                    <Space h="sm" />
+                    <Text
+                      align="center"
+                      size="md"
+                      className={classes.body}
+                      dangerouslySetInnerHTML={{
+                        __html: replaceURLs(post.Body.replace(/\n/g, "<br> ")),
+                      }}
+                    />
+                  </TypographyStylesProvider>
+                </Spoiler>
 
                 <Space h="md" />
+
                 {post.RepostedPostEntryResponse && (
                   <Paper
                     m="md"
@@ -412,12 +449,42 @@ export const FollowerFeed = () => {
                         }
                       </Text>
                     </Center>
-                    <TypographyStylesProvider>
-                      <Space h="sm" />
-                      <Text align="center" size="md" className={classes.body}>
-                        {post.RepostedPostEntryResponse.Body}
-                      </Text>
-                    </TypographyStylesProvider>
+                    <Spoiler
+                      maxHeight={222}
+                      showLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show More">
+                            <IconScriptPlus />
+                          </Tooltip>
+                        </>
+                      }
+                      hideLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show Less">
+                            <IconScriptMinus />
+                          </Tooltip>
+                        </>
+                      }
+                    >
+                      <TypographyStylesProvider>
+                        <Space h="sm" />
+                        <Text
+                          align="center"
+                          size="md"
+                          className={classes.body}
+                          dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              post.RepostedPostEntryResponse.Body.replace(
+                                /\n/g,
+                                "<br> "
+                              )
+                            ),
+                          }}
+                        />
+                      </TypographyStylesProvider>
+                    </Spoiler>
 
                     <Space h="md" />
 
@@ -476,7 +543,7 @@ export const FollowerFeed = () => {
                   </Group>
                 )}
                 {post.ImageURLs && (
-                 <Group position="center">
+                  <Group position="center">
                     <UnstyledButton
                       onClick={() => {
                         setSelectedImage(post.ImageURLs[0]);
@@ -687,8 +754,8 @@ export const FollowerFeed = () => {
           </Center>
         )}
       </div>
-      
-       <Modal opened={opened} onClose={close} size="auto" centered>
+
+      <Modal opened={opened} onClose={close} size="auto" centered>
         <Image src={selectedImage} radius="md" alt="post-image" fit="contain" />
       </Modal>
     </>

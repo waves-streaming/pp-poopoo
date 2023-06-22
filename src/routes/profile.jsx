@@ -15,7 +15,7 @@ import {
   Tooltip,
   Button,
   Modal,
-  Textarea,
+  Spoiler,
   TextInput,
   Badge,
   rem,
@@ -38,6 +38,8 @@ import {
   IconRecycle,
   IconMessageCircle,
   IconSettings,
+  IconScriptPlus,
+  IconScriptMinus,
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { SetUsername } from "../components/SetUsername";
@@ -129,6 +131,15 @@ export const Profile = () => {
     }
 
     window.location.reload();
+  };
+
+  const replaceURLs = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const atSymbolRegex = /(\S*@+\S*)/g;
+
+    return text
+      .replace(urlRegex, (url) => `<a href="${url}" target="_blank">${url}</a>`)
+      .replace(atSymbolRegex, (match) => ` ${match} `);
   };
 
   return (
@@ -351,12 +362,39 @@ export const Profile = () => {
                       </Text>
                     </Center>
 
-                    <TypographyStylesProvider>
-                      <Space h="sm" />
-                      <Text align="center" size="md" className={classes.body}>
-                        {post.Body}
-                      </Text>
-                    </TypographyStylesProvider>
+                    <Spoiler
+                      maxHeight={222}
+                      showLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show More">
+                            <IconScriptPlus />
+                          </Tooltip>
+                        </>
+                      }
+                      hideLabel={
+                        <>
+                          <Space h="xs" />
+                          <Tooltip label="Show Less">
+                            <IconScriptMinus />
+                          </Tooltip>
+                        </>
+                      }
+                    >
+                      <TypographyStylesProvider>
+                        <Space h="sm" />
+                        <Text
+                          align="center"
+                          size="md"
+                          className={classes.body}
+                          dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              post.Body.replace(/\n/g, "<br> ")
+                            ),
+                          }}
+                        />
+                      </TypographyStylesProvider>
+                    </Spoiler>
 
                     <Space h="md" />
 
@@ -372,7 +410,7 @@ export const Profile = () => {
                       >
                         <Center>
                           <Avatar
-                            radius="lg"
+                            radius="xl"
                             size="lg"
                             src={
                               post.RepostedPostEntryResponse
@@ -390,16 +428,43 @@ export const Profile = () => {
                             }
                           </Text>
                         </Center>
-                        <TypographyStylesProvider>
-                          <Space h="sm" />
-                          <Text
-                            align="center"
-                            size="md"
-                            className={classes.body}
-                          >
-                            {post.RepostedPostEntryResponse.Body}
-                          </Text>
-                        </TypographyStylesProvider>
+                        <Spoiler
+                          maxHeight={222}
+                          showLabel={
+                            <>
+                              <Space h="xs" />
+                              <Tooltip label="Show More">
+                                <IconScriptPlus />
+                              </Tooltip>
+                            </>
+                          }
+                          hideLabel={
+                            <>
+                              <Space h="xs" />
+                              <Tooltip label="Show Less">
+                                <IconScriptMinus />
+                              </Tooltip>
+                            </>
+                          }
+                        >
+                          <TypographyStylesProvider>
+                            <Space h="sm" />
+                            <Text
+                              align="center"
+                              size="md"
+                              className={classes.body}
+                              dangerouslySetInnerHTML={{
+                                __html: replaceURLs(
+                                  post.RepostedPostEntryResponse.Body.replace(
+                                    /\n/g,
+                                    "<br> "
+                                  )
+                                ),
+                              }}
+                            />
+                          </TypographyStylesProvider>
+                        </Spoiler>
+                        <Space h="md" />
                         <Space h="md" />
                         {post.RepostedPostEntryResponse.ImageURLs &&
                           post.RepostedPostEntryResponse.ImageURLs.length >
@@ -561,7 +626,11 @@ export const Profile = () => {
                       </Center>
                       <Space h="sm" />
                       <TypographyStylesProvider>
-                        <Text align="center" size="md" className={classes.body}>
+                        <Text align="center" size="md" className={classes.body}   dangerouslySetInnerHTML={{
+                            __html: replaceURLs(
+                              nft.Body.replace(/\n/g, "<br> ")
+                            ),
+                          }}>
                           {nft.PostEntryResponse.Body}
                         </Text>
                       </TypographyStylesProvider>

@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext } from "react";
 import { Player } from "@livepeer/react";
 import {
@@ -91,7 +91,7 @@ export const Wave = () => {
   const { classes } = useStyles();
   const location = useLocation();
   const { pathname } = location;
-
+const navigate = useNavigate();
   const userName = pathname.substring(pathname.lastIndexOf("/") + 1);
   const [posts, setPosts] = useState([]);
   const [NFTs, setNFTs] = useState([]);
@@ -207,13 +207,23 @@ export const Wave = () => {
     }
   };
 
-  const fetchNFTs = async () => {
+  const fetchNFTs = async (limit) => {
     try {
       const nftData = await getNFTsForUser({
         UserPublicKeyBase58Check: profile.PublicKeyBase58Check,
         IsForSale: true,
       });
-      setNFTs(nftData.NFTsMap);
+
+      const nftKeys = Object.keys(nftData.NFTsMap);
+      const limitedNFTKeys = nftKeys.slice(0, limit);
+
+      const limitedNFTs = limitedNFTKeys.reduce((result, key) => {
+        result[key] = nftData.NFTsMap[key];
+        return result;
+      }, {});
+
+      setNFTs(limitedNFTs);
+      console.log(limitedNFTs);
     } catch (error) {
       console.error("Error fetching user NFTs:", error);
     }
@@ -229,7 +239,7 @@ export const Wave = () => {
 
     // Fetch NFTs if the "NFTs" tab is selected
     if (tab === "second") {
-      fetchNFTs();
+      fetchNFTs(25);
     }
   };
 
@@ -238,7 +248,7 @@ export const Wave = () => {
   }, [profile.PublicKeyBase58Check]);
 
   useEffect(() => {
-    fetchNFTs(); // Fetch NFTs initially
+    fetchNFTs(25); // Fetch NFTs initially
   }, [profile.PublicKeyBase58Check]);
 
   const [commentToggles, setCommentToggles] = useState({});
@@ -357,7 +367,7 @@ export const Wave = () => {
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Card.Section>
           <Image
-            src={profile.ExtraData?.featureImage}
+            src={profile.ExtraData?.FeaturedImageURL || null}
             height={200}
             withPlaceholder
           />
@@ -612,23 +622,32 @@ export const Wave = () => {
                     className={classes.comment}
                   >
                     <Center>
-                      <Avatar
-                        radius="xl"
-                        size="lg"
-                        src={
-                          post.RepostedPostEntryResponse?.ProfileEntryResponse
-                            ?.ExtraData?.LargeProfilePicURL ||
-                          `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
-                        }
-                      />
+                      <ActionIcon
+                        onClick={() => {
+                          navigate(
+                            `/wave/${post.RepostedPostEntryResponse.ProfileEntryResponse?.Username}`
+                          );
+                        }}
+                        variant="transparent"
+                      >
+                        <Avatar
+                          radius="xl"
+                          size="lg"
+                          src={
+                            post.RepostedPostEntryResponse?.ProfileEntryResponse
+                              ?.ExtraData?.LargeProfilePicURL ||
+                            `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                          }
+                        />
 
-                      <Space w="xs" />
-                      <Text weight="bold" size="sm">
-                        {
-                          post.RepostedPostEntryResponse.ProfileEntryResponse
-                            ?.Username
-                        }
-                      </Text>
+                        <Space w="xs" />
+                        <Text weight="bold" size="sm">
+                          {
+                            post.RepostedPostEntryResponse.ProfileEntryResponse
+                              ?.Username
+                          }
+                        </Text>
+                      </ActionIcon>
                     </Center>
                     <Spoiler
                       maxHeight={222}
@@ -939,8 +958,8 @@ export const Wave = () => {
                       className={classes.body}
                       dangerouslySetInnerHTML={{
                         __html: replaceURLs(
-                          nft && nft.Body
-                            ? nft.Body.replace(/\n/g, "<br> ")
+                          nft && nft.PostEntryResponse.Body
+                            ? nft.PostEntryResponse.Body.replace(/\n/g, "<br> ")
                             : ""
                         ),
                       }}
@@ -951,8 +970,8 @@ export const Wave = () => {
                   {nft.PostEntryResponse.VideoURLs && (
                     <iframe
                       style={{ width: "100%", height: "100%" }}
-                      src={nft.VideoURLs}
-                      title={nft.PostHashHex}
+                      src={nft.PostEntryResponse.VideoURLs}
+                      title={nft.PostEntryResponse.PostHashHex}
                     />
                   )}
                   {nft.PostEntryResponse.ImageURLs && (

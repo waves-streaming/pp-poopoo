@@ -412,7 +412,7 @@ const navigate = useNavigate();
               playbackId={profile.ExtraData?.WavesStreamPlaybackId}
               title={profile.ExtraData?.WavesStreamTitle}
               autoPlay
-              muted
+              
             />
           ) : (
             <Divider

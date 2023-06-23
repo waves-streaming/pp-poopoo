@@ -115,7 +115,7 @@ useEffect(() => {
              style={{ width: '100%' }}
                 playbackId={post.ExtraData.WavesStreamPlaybackId}
                 title={post.ExtraData.WavesStreamTitle}
-                automute
+                
               />
             </Paper>
           </>

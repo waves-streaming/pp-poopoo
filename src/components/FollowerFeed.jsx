@@ -311,7 +311,7 @@ export const FollowerFeed = () => {
                 <Player
                   playbackId={post.ExtraData.WavesStreamPlaybackId}
                   title={post.ExtraData.WavesStreamTitle}
-                  automute
+                  
                 />
               </Paper>
             );

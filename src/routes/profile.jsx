@@ -43,6 +43,7 @@ import {
 } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { SetUsername } from "../components/SetUsername";
+import { useNavigate } from "react-router";
 
 const useStyles = createStyles((theme) => ({
   comment: {
@@ -69,6 +70,7 @@ const useStyles = createStyles((theme) => ({
 
 export const Profile = () => {
   const { classes } = useStyles();
+  const navigate = useNavigate();
   const [opened, { open, close }] = useDisclosure(false);
   const { currentUser } = useContext(DeSoIdentityContext);
   const [profile, setProfile] = useState([]);
@@ -410,26 +412,34 @@ export const Profile = () => {
                         key={post.RepostedPostEntryResponse.PostHashHex}
                         className={classes.comment}
                       >
-                        <Center>
-                          <Avatar
-                            radius="xl"
-                            size="lg"
-                            src={
-                              post.RepostedPostEntryResponse
-                                ?.ProfileEntryResponse?.ExtraData
-                                ?.LargeProfilePicURL ||
-                              `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
-                            }
-                          />
+                      <Center>
+                      <ActionIcon
+                        onClick={() => {
+                          navigate(
+                            `/wave/${post.RepostedPostEntryResponse.ProfileEntryResponse?.Username}`
+                          );
+                        }}
+                        variant="transparent"
+                      >
+                        <Avatar
+                          radius="xl"
+                          size="lg"
+                          src={
+                            post.RepostedPostEntryResponse?.ProfileEntryResponse
+                              ?.ExtraData?.LargeProfilePicURL ||
+                            `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                          }
+                        />
 
-                          <Space w="xs" />
-                          <Text weight="bold" size="sm">
-                            {
-                              post.RepostedPostEntryResponse
-                                .ProfileEntryResponse?.Username
-                            }
-                          </Text>
-                        </Center>
+                        <Space w="xs" />
+                        <Text weight="bold" size="sm">
+                          {
+                            post.RepostedPostEntryResponse.ProfileEntryResponse
+                              ?.Username
+                          }
+                        </Text>
+                      </ActionIcon>
+                    </Center>
                         <Spoiler
                           maxHeight={222}
                           showLabel={
@@ -627,8 +637,11 @@ export const Profile = () => {
                           className={classes.body}
                           dangerouslySetInnerHTML={{
                             __html: replaceURLs(
-                              nft && nft.Body
-                                ? nft.Body.replace(/\n/g, "<br> ")
+                              nft && nft.PostEntryResponse.Body
+                                ? nft.PostEntryResponse.Body.replace(
+                                    /\n/g,
+                                    "<br> "
+                                  )
                                 : ""
                             ),
                           }}
@@ -639,8 +652,8 @@ export const Profile = () => {
                       {nft.PostEntryResponse.VideoURLs && (
                         <iframe
                           style={{ width: "100%", height: "100%" }}
-                          src={nft.VideoURLs}
-                          title={nft.PostHashHex}
+                          src={nft.PostEntryResponse.VideoURLs}
+                          title={nft.PostEntryResponse.PostHashHex}
                         />
                       )}
                       {nft.PostEntryResponse.ImageURLs && (

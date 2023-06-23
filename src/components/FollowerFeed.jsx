@@ -334,31 +334,9 @@ export const FollowerFeed = () => {
                 <Center>
                   <ActionIcon
                     onClick={() => {
-                      const state = {
-                        userPublicKey: post.PosterPublicKeyBase58Check,
-                        userName: post.ProfileEntryResponse.Username
-                          ? post.ProfileEntryResponse.Username
-                          : post.PosterPublicKeyBase58Check,
-                        description: post.ProfileEntryResponse.Description
-                          ? post.ProfileEntryResponse.Description
-                          : null,
-                        largeProfPic:
-                          post.ProfileEntryResponse.ExtraData &&
-                          post.ProfileEntryResponse.ExtraData.LargeProfilePicURL
-                            ? post.ProfileEntryResponse.ExtraData
-                                .LargeProfilePicURL
-                            : null,
-                        featureImage:
-                          post.ProfileEntryResponse.ExtraData &&
-                          post.ProfileEntryResponse.ExtraData.FeaturedImageURL
-                            ? post.ProfileEntryResponse.ExtraData
-                                .FeaturedImageURL
-                            : null,
-                      };
+                     
 
-                      navigate(`/wave/${post.ProfileEntryResponse.Username}`, {
-                        state,
-                      });
+                      navigate(`/wave/${post.ProfileEntryResponse.Username}`);
                     }}
                     variant="transparent"
                   >
@@ -431,23 +409,32 @@ export const FollowerFeed = () => {
                     className={classes.comment}
                   >
                     <Center>
-                      <Avatar
-                        radius="xl"
-                        size="lg"
-                        src={
-                          post.RepostedPostEntryResponse?.ProfileEntryResponse
-                            ?.ExtraData?.LargeProfilePicURL ||
-                          `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
-                        }
-                      />
+                      <ActionIcon
+                        onClick={() => {
+                          navigate(
+                            `/wave/${post.RepostedPostEntryResponse.ProfileEntryResponse?.Username}`
+                          );
+                        }}
+                        variant="transparent"
+                      >
+                        <Avatar
+                          radius="xl"
+                          size="lg"
+                          src={
+                            post.RepostedPostEntryResponse?.ProfileEntryResponse
+                              ?.ExtraData?.LargeProfilePicURL ||
+                            `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                          }
+                        />
 
-                      <Space w="xs" />
-                      <Text weight="bold" size="sm">
-                        {
-                          post.RepostedPostEntryResponse.ProfileEntryResponse
-                            ?.Username
-                        }
-                      </Text>
+                        <Space w="xs" />
+                        <Text weight="bold" size="sm">
+                          {
+                            post.RepostedPostEntryResponse.ProfileEntryResponse
+                              ?.Username
+                          }
+                        </Text>
+                      </ActionIcon>
                     </Center>
                     <Spoiler
                       maxHeight={222}

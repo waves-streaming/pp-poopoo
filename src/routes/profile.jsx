@@ -321,8 +321,7 @@ export const Profile = () => {
           </Card>
 
           <Space h="xl" />
-          <CreateStream />
-          <Space h="xl" />
+ 
 
           <Tabs radius="sm" value={activeTab} onTabChange={setActiveTab}>
             <Tabs.List grow position="center">

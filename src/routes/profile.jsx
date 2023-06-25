@@ -20,7 +20,7 @@ import {
   Badge,
   rem,
 } from "@mantine/core";
-import { CreateStream } from "../components/CreateStream";
+
 import { useState, useContext, useEffect } from "react";
 import { DeSoIdentityContext } from "react-deso-protocol";
 import {
@@ -321,7 +321,6 @@ export const Profile = () => {
           </Card>
 
           <Space h="xl" />
- 
 
           <Tabs radius="sm" value={activeTab} onTabChange={setActiveTab}>
             <Tabs.List grow position="center">

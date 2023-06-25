@@ -20,7 +20,7 @@ import {
   Badge,
   rem,
 } from "@mantine/core";
-
+import { CreateStream } from "../components/CreateStream";
 import { useState, useContext, useEffect } from "react";
 import { DeSoIdentityContext } from "react-deso-protocol";
 import {
@@ -29,6 +29,7 @@ import {
   getPostsForUser,
   getNFTsForUser,
   updateProfile,
+  createAccessGroup,
 } from "deso-protocol";
 import { Stream } from "../components/Stream";
 import { getDisplayName } from "../helpers";
@@ -285,9 +286,15 @@ export const Profile = () => {
                   textOverflow: "ellipsis",
                   whiteSpace: "wrap",
                 }}
-              >
-                {profile?.Profile?.Description && profile?.Profile?.Description}
-              </Text>
+                dangerouslySetInnerHTML={{
+                  __html:
+                    profile && profile.Profile && profile.Profile.Description
+                      ? replaceURLs(
+                          profile.Profile.Description.replace(/\n/g, "<br> ")
+                        )
+                      : "",
+                }}
+              />
             </Paper>
             <Space h="sm" />
 
@@ -313,6 +320,8 @@ export const Profile = () => {
             </Center>
           </Card>
 
+          <Space h="xl" />
+          <CreateStream />
           <Space h="xl" />
 
           <Tabs radius="sm" value={activeTab} onTabChange={setActiveTab}>
@@ -412,34 +421,35 @@ export const Profile = () => {
                         key={post.RepostedPostEntryResponse.PostHashHex}
                         className={classes.comment}
                       >
-                      <Center>
-                      <ActionIcon
-                        onClick={() => {
-                          navigate(
-                            `/wave/${post.RepostedPostEntryResponse.ProfileEntryResponse?.Username}`
-                          );
-                        }}
-                        variant="transparent"
-                      >
-                        <Avatar
-                          radius="xl"
-                          size="lg"
-                          src={
-                            post.RepostedPostEntryResponse?.ProfileEntryResponse
-                              ?.ExtraData?.LargeProfilePicURL ||
-                            `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
-                          }
-                        />
+                        <Center>
+                          <ActionIcon
+                            onClick={() => {
+                              navigate(
+                                `/wave/${post.RepostedPostEntryResponse.ProfileEntryResponse?.Username}`
+                              );
+                            }}
+                            variant="transparent"
+                          >
+                            <Avatar
+                              radius="xl"
+                              size="lg"
+                              src={
+                                post.RepostedPostEntryResponse
+                                  ?.ProfileEntryResponse?.ExtraData
+                                  ?.LargeProfilePicURL ||
+                                `https://node.deso.org/api/v0/get-single-profile-picture/${post.RepostedPostEntryResponse?.ProfileEntryResponse?.PublicKeyBase58Check}`
+                              }
+                            />
 
-                        <Space w="xs" />
-                        <Text weight="bold" size="sm">
-                          {
-                            post.RepostedPostEntryResponse.ProfileEntryResponse
-                              ?.Username
-                          }
-                        </Text>
-                      </ActionIcon>
-                    </Center>
+                            <Space w="xs" />
+                            <Text weight="bold" size="sm">
+                              {
+                                post.RepostedPostEntryResponse
+                                  .ProfileEntryResponse?.Username
+                              }
+                            </Text>
+                          </ActionIcon>
+                        </Center>
                         <Spoiler
                           maxHeight={222}
                           showLabel={

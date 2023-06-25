@@ -91,7 +91,7 @@ export const Wave = () => {
   const { classes } = useStyles();
   const location = useLocation();
   const { pathname } = location;
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const userName = pathname.substring(pathname.lastIndexOf("/") + 1);
   const [posts, setPosts] = useState([]);
   const [NFTs, setNFTs] = useState([]);
@@ -437,16 +437,20 @@ const navigate = useNavigate();
 
         <Paper shadow="xl" radius="md" p="xl">
           <Text
-            fz="sm"
-            style={{
-              maxWidth: "100%",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "wrap",
-            }}
-          >
-            {profile.Description}
-          </Text>
+    fz="sm"
+    style={{
+      maxWidth: "100%",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "wrap",
+    }}
+    dangerouslySetInnerHTML={{
+      __html:
+        profile && profile.Description
+          ? replaceURLs(profile.Description.replace(/\n/g, "<br> "))
+          : "",
+    }}
+  />
         </Paper>
 
         <Space h="sm" />

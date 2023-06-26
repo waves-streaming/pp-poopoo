@@ -112,7 +112,7 @@ export const Wave = () => {
         });
 
         setProfile(profileData.Profile);
-        console.log(profileData.Profile);
+       
       } catch (error) {
         console.error("Error fetching user profile:", error);
       }
@@ -151,7 +151,7 @@ export const Wave = () => {
             PublicKeyBase58Check: currentUser.PublicKeyBase58Check,
             IsFollowingPublicKeyBase58Check: profile.PublicKeyBase58Check,
           });
-          console.log("Is Following:", result.IsFollowing);
+       
           setisFollowingUser(result.IsFollowing);
         } catch (error) {
           console.error("Error checking if following:", error);
@@ -168,7 +168,7 @@ export const Wave = () => {
         PublicKeyBase58Check: currentUser.PublicKeyBase58Check,
         IsFollowingPublicKeyBase58Check: profile.PublicKeyBase58Check,
       });
-      console.log("Is Following:", result.IsFollowing);
+      
       setisFollowingUser(result.IsFollowing);
     } catch (error) {
       console.error("Error checking if following:", error);

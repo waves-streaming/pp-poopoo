@@ -9,15 +9,26 @@ import {
   List,
   Loader,
   Badge,
+  UnstyledButton,
 } from "@mantine/core";
 import { useState, useContext, useEffect } from "react";
 import { DeSoIdentityContext } from "react-deso-protocol";
-import { getNotifications } from "deso-protocol";
+import { getNotifications, getSingleProfile } from "deso-protocol";
+import { useNavigate } from "react-router";
+import {
+  IconHeart,
+  IconUsers,
+  IconMessage2,
+  IconDiamond,
+  IconRecycle,
+  IconAt,
+} from "@tabler/icons-react";
 
 export const NotificationsPage = () => {
   const { currentUser, isLoading } = useContext(DeSoIdentityContext);
   const [notifications, setNotifications] = useState([]);
   const userPublicKey = currentUser?.PublicKeyBase58Check;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -28,9 +39,25 @@ export const NotificationsPage = () => {
           FetchStartIndex: -1,
         });
 
-        setNotifications(notificationData.Notifications);
+        // Iterate through the notifications and fetch the usernames
+        const updatedNotifications = await Promise.all(
+          notificationData.Notifications.map(async (notification) => {
+            const request = {
+              PublicKeyBase58Check:
+                notification.Metadata.TransactorPublicKeyBase58Check,
+            };
+            const profileResponse = await getSingleProfile(request);
+            return {
+              ...notification,
+              username: profileResponse.Profile.Username,
+            };
+          })
+        );
+
+        setNotifications(updatedNotifications);
+        console.log(updatedNotifications);
       } catch (error) {
-        console.error("Error fetching user hotFeed:", error);
+        console.error("Error fetching user notifications:", error);
       }
     };
 
@@ -55,7 +82,7 @@ export const NotificationsPage = () => {
 
       {currentUser ? (
         <>
-          <Center>
+        
             {isLoading ? (
               <Loader variant="bars" />
             ) : (
@@ -63,30 +90,141 @@ export const NotificationsPage = () => {
               <List listStyleType="none" spacing="sm">
                 {notifications.map((notification, index) => (
                   <List.Item key={index}>
-                    <Paper radius="lg" shadow="lg" p="md" withBorder>
+                    <Paper shadow="lg" p="sm" withBorder>
                       <Group>
-                        <Avatar
-                           radius="xl"
-                          size="sm"
-                          src={
-                            `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
-                            null
-                          }
-                        />
-                        <Text
-                          variant="gradient"
-                          gradient={{ from: "indigo", to: "cyan", deg: 45 }}
-                          fw={500}
+                        <UnstyledButton
+                          onClick={() => {
+                            navigate(`/wave/${notification.username}`);
+                          }}
+                          variant="transparent"
                         >
-                          {notification.Metadata.TxnType}
-                        </Text>
+                          <Group style={{ width: "100%", flexGrow: 1 }}>
+                            <Avatar
+                              size="md"
+                              src={
+                                `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
+                                null
+                              }
+                            />
+                            <div>
+                              <Text weight="bold" size="sm">
+                                {notification.username}
+                              </Text>
+                            </div>
+                          </Group>
+                        </UnstyledButton>
+
+                        {notification.Metadata.TxnType === "LIKE" && (
+                          <Group>
+                            <div>
+                              <IconHeart />
+                            </div>
+                            <Text weight="bold" size="sm">
+                              Liked
+                            </Text>
+                            <Group position="right">
+                              <UnstyledButton
+                          onClick={() => {
+                            navigate(`/post/${notification.Metadata.LikeTxindexMetadata.PostHashHex}`);
+                          }}
+                          variant="transparent"
+                        >
+                              <Text weight="bold" size="sm">
+                                Post
+                              </Text>
+                              </UnstyledButton>
+                            </Group>
+                          </Group>
+                        )}
+                        {notification.Metadata.TxnType === "FOLLOW" && (
+                          <Group>
+                            <div>
+                              <IconUsers />
+                            </div>
+                            <Text weight="bold" size="sm">
+                              Followed you
+                            </Text>
+                            
+                          </Group>
+                        )}
+                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                          notification.Metadata.AffectedPublicKeys[0]
+                            .Metadata === "RepostedPublicKeyBase58Check" && (
+                            <Group>
+                              <div>
+                                <IconRecycle />
+                              </div>
+                              <Text weight="bold" size="sm">
+                                Reposted
+                              </Text>
+                              <Group position="right">
+                                <Text weight="bold" size="sm">
+                                  Post
+                                </Text>
+                              </Group>
+                            </Group>
+                          )}
+
+                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                          notification.Metadata.AffectedPublicKeys[0]
+                            .Metadata === "MentionedPublicKeyBase58Check" && (
+                            <Group>
+                              <div>
+                                <IconAt />
+                              </div>
+                              <Text weight="bold" size="sm">
+                                Mentioned You
+                              </Text>
+                              <Group position="right">
+                                <Text weight="bold" size="sm">
+                                  Post
+                                </Text>
+                              </Group>
+                            </Group>
+                          )}
+                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                          notification.Metadata.AffectedPublicKeys[0]
+                            .Metadata ===
+                            "ParentPosterPublicKeyBase58Check" && (
+                            <Group>
+                              <div>
+                                <IconMessage2 />
+                              </div>
+                              <Text weight="bold" size="sm">
+                                Commented
+                              </Text>
+                              <Group position="right">
+                                <Text weight="bold" size="sm">
+                                  Post
+                                </Text>
+                              </Group>
+                            </Group>
+                          )}
+
+                        {notification.Metadata.BasicTransferTxindexMetadata &&
+                          notification.Metadata.BasicTransferTxindexMetadata
+                            .DiamondLevel && (
+                            <Group>
+                              <div>
+                                <IconDiamond />
+                              </div>
+                              <Text weight="bold" size="sm">
+                                Sent a Diamond to
+                              </Text>
+                              <Group position="right">
+                                <Text weight="bold" size="sm">
+                                  Post
+                                </Text>
+                              </Group>
+                            </Group>
+                          )}
                       </Group>
                     </Paper>
                   </List.Item>
                 ))}
               </List>
             )}
-          </Center>
+         
         </>
       ) : (
         <>
@@ -103,6 +241,7 @@ export const NotificationsPage = () => {
           </Center>
         </>
       )}
+      <Space h={111} />
     </div>
   );
 };

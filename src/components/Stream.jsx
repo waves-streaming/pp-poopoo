@@ -139,7 +139,7 @@ export const Stream = () => {
           IsFollowingPublicKeyBase58Check:
             "BC1YLfjx3jKZeoShqr2r3QttepoYmvJGEs7vbYx1WYoNmNW9FY5VUu6",
         });
-        console.log("Is Following:", result.IsFollowing);
+
         setisFollowingWaves(result.IsFollowing);
       } catch (error) {
         console.log("Something went wrong:", error);

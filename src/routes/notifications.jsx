@@ -10,6 +10,7 @@ import {
   Loader,
   Badge,
   UnstyledButton,
+  createStyles,
 } from "@mantine/core";
 import { useState, useContext, useEffect } from "react";
 import { DeSoIdentityContext } from "react-deso-protocol";
@@ -24,7 +25,17 @@ import {
   IconAt,
 } from "@tabler/icons-react";
 
+const useStyles = createStyles((theme) => ({
+  main: {
+    width: "100%",
+    maxWidth: "777px",
+    margin: "0 auto",
+    overflowX: "hidden",
+  },
+}));
+
 export const NotificationsPage = () => {
+  const { classes } = useStyles();
   const { currentUser, isLoading } = useContext(DeSoIdentityContext);
   const [notifications, setNotifications] = useState([]);
   const userPublicKey = currentUser?.PublicKeyBase58Check;
@@ -82,149 +93,144 @@ export const NotificationsPage = () => {
 
       {currentUser ? (
         <>
-        
-            {isLoading ? (
-              <Loader variant="bars" />
-            ) : (
-              /* Render the notifications once loaded */
-              <List listStyleType="none" spacing="sm">
-                {notifications.map((notification, index) => (
-                  <List.Item key={index}>
-                    <Paper shadow="lg" p="sm" withBorder>
-                      <Group>
+          {isLoading ? (
+            <Loader variant="bars" />
+          ) : (
+            /* Render the notifications once loaded */
+
+            notifications.map((notification, index) => (
+              <Paper shadow="lg" p="sm" withBorder>
+                <Group className={classes.main}>
+                  <UnstyledButton
+                    onClick={() => {
+                      navigate(`/wave/${notification.username}`);
+                    }}
+                    variant="transparent"
+                  >
+                    <Group style={{ width: "100%", flexGrow: 1 }}>
+                      <Avatar
+                        size="md"
+                        src={
+                          `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
+                          null
+                        }
+                      />
+                      <div>
+                        <Text weight="bold" size="sm">
+                          {notification.username}
+                        </Text>
+                      </div>
+                    </Group>
+                  </UnstyledButton>
+
+                  {notification.Metadata.TxnType === "LIKE" && (
+                    <Group>
+                      <div>
+                        <IconHeart />
+                      </div>
+                      <Text weight="bold" size="sm">
+                        Liked
+                      </Text>
+                      <Group position="right">
                         <UnstyledButton
                           onClick={() => {
-                            navigate(`/wave/${notification.username}`);
+                            navigate(
+                              `/post/${notification.Metadata.LikeTxindexMetadata.PostHashHex}`
+                            );
                           }}
                           variant="transparent"
                         >
-                          <Group style={{ width: "100%", flexGrow: 1 }}>
-                            <Avatar
-                              size="md"
-                              src={
-                                `https://node.deso.org/api/v0/get-single-profile-picture/${notification.Metadata.TransactorPublicKeyBase58Check}` ||
-                                null
-                              }
-                            />
-                            <div>
-                              <Text weight="bold" size="sm">
-                                {notification.username}
-                              </Text>
-                            </div>
-                          </Group>
+                          <Text weight="bold" size="sm">
+                            Post
+                          </Text>
                         </UnstyledButton>
-
-                        {notification.Metadata.TxnType === "LIKE" && (
-                          <Group>
-                            <div>
-                              <IconHeart />
-                            </div>
-                            <Text weight="bold" size="sm">
-                              Liked
-                            </Text>
-                            <Group position="right">
-                              <UnstyledButton
-                          onClick={() => {
-                            navigate(`/post/${notification.Metadata.LikeTxindexMetadata.PostHashHex}`);
-                          }}
-                          variant="transparent"
-                        >
-                              <Text weight="bold" size="sm">
-                                Post
-                              </Text>
-                              </UnstyledButton>
-                            </Group>
-                          </Group>
-                        )}
-                        {notification.Metadata.TxnType === "FOLLOW" && (
-                          <Group>
-                            <div>
-                              <IconUsers />
-                            </div>
-                            <Text weight="bold" size="sm">
-                              Followed you
-                            </Text>
-                            
-                          </Group>
-                        )}
-                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
-                          notification.Metadata.AffectedPublicKeys[0]
-                            .Metadata === "RepostedPublicKeyBase58Check" && (
-                            <Group>
-                              <div>
-                                <IconRecycle />
-                              </div>
-                              <Text weight="bold" size="sm">
-                                Reposted
-                              </Text>
-                              <Group position="right">
-                                <Text weight="bold" size="sm">
-                                  Post
-                                </Text>
-                              </Group>
-                            </Group>
-                          )}
-
-                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
-                          notification.Metadata.AffectedPublicKeys[0]
-                            .Metadata === "MentionedPublicKeyBase58Check" && (
-                            <Group>
-                              <div>
-                                <IconAt />
-                              </div>
-                              <Text weight="bold" size="sm">
-                                Mentioned You
-                              </Text>
-                              <Group position="right">
-                                <Text weight="bold" size="sm">
-                                  Post
-                                </Text>
-                              </Group>
-                            </Group>
-                          )}
-                        {notification.Metadata.TxnType === "SUBMIT_POST" &&
-                          notification.Metadata.AffectedPublicKeys[0]
-                            .Metadata ===
-                            "ParentPosterPublicKeyBase58Check" && (
-                            <Group>
-                              <div>
-                                <IconMessage2 />
-                              </div>
-                              <Text weight="bold" size="sm">
-                                Commented
-                              </Text>
-                              <Group position="right">
-                                <Text weight="bold" size="sm">
-                                  Post
-                                </Text>
-                              </Group>
-                            </Group>
-                          )}
-
-                        {notification.Metadata.BasicTransferTxindexMetadata &&
-                          notification.Metadata.BasicTransferTxindexMetadata
-                            .DiamondLevel && (
-                            <Group>
-                              <div>
-                                <IconDiamond />
-                              </div>
-                              <Text weight="bold" size="sm">
-                                Sent a Diamond to
-                              </Text>
-                              <Group position="right">
-                                <Text weight="bold" size="sm">
-                                  Post
-                                </Text>
-                              </Group>
-                            </Group>
-                          )}
                       </Group>
-                    </Paper>
-                  </List.Item>
-                ))}
-              </List>
-            )}
-         
+                    </Group>
+                  )}
+                  {notification.Metadata.TxnType === "FOLLOW" && (
+                    <Group>
+                      <div>
+                        <IconUsers />
+                      </div>
+                      <Text weight="bold" size="sm">
+                        Followed you
+                      </Text>
+                    </Group>
+                  )}
+                  {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                    notification.Metadata.AffectedPublicKeys[0].Metadata ===
+                      "RepostedPublicKeyBase58Check" && (
+                      <Group>
+                        <div>
+                          <IconRecycle />
+                        </div>
+                        <Text weight="bold" size="sm">
+                          Reposted
+                        </Text>
+                        <Group position="right">
+                          <Text weight="bold" size="sm">
+                            Post
+                          </Text>
+                        </Group>
+                      </Group>
+                    )}
+
+                  {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                    notification.Metadata.AffectedPublicKeys[0].Metadata ===
+                      "MentionedPublicKeyBase58Check" && (
+                      <Group>
+                        <div>
+                          <IconAt />
+                        </div>
+                        <Text weight="bold" size="sm">
+                          Mentioned You
+                        </Text>
+                        <Group position="right">
+                          <Text weight="bold" size="sm">
+                            Post
+                          </Text>
+                        </Group>
+                      </Group>
+                    )}
+                  {notification.Metadata.TxnType === "SUBMIT_POST" &&
+                    notification.Metadata.AffectedPublicKeys[0].Metadata ===
+                      "ParentPosterPublicKeyBase58Check" && (
+                      <Group>
+                        <div>
+                          <IconMessage2 />
+                        </div>
+                        <Text weight="bold" size="sm">
+                          Commented
+                        </Text>
+                        <Group position="right">
+                          <Text weight="bold" size="sm">
+                            Post
+                          </Text>
+                        </Group>
+                      </Group>
+                    )}
+
+                  {notification.Metadata.BasicTransferTxindexMetadata &&
+                    notification.Metadata.BasicTransferTxindexMetadata
+                      .DiamondLevel && (
+                      <Group>
+                        <div>
+                          <IconDiamond />
+                        </div>
+                        <Text weight="bold" size="sm">
+                          Sent a Diamond to
+                        </Text>
+                        <Group position="right">
+                          <Text weight="bold" size="sm">
+                            Post
+                          </Text>
+                        </Group>
+                      </Group>
+                    )}
+                </Group>
+              </Paper>
+            ))
+          )}
         </>
       ) : (
         <>

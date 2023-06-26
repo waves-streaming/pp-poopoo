@@ -31,6 +31,7 @@ import {
   TypographyStylesProvider,
   Spoiler,
   Tooltip,
+  Image
 } from "@mantine/core";
 import {
   IconHeart,
@@ -192,9 +193,10 @@ export const PostPage = () => {
             onClick={() => {
               navigate(`/wave/${singlePost.ProfileEntryResponse?.Username}`);
             }}
-            spo
+            
             variant="transparent"
           >
+
             <Avatar
               radius="xl"
               size="lg"
@@ -241,7 +243,27 @@ export const PostPage = () => {
             />
           </TypographyStylesProvider>
         </Spoiler>
-
+        {singlePost.VideoURLs && (
+                  <iframe
+                    style={{ width: "100%", height: "100%" }}
+                    src={singlePost.VideoURLs}
+                    title={postHash}
+                  />
+                )}
+        {singlePost.ImageURLs && (
+                  <Group position="center">
+                    <UnstyledButton
+                      
+                    >
+                      <Image
+                        src={singlePost.ImageURLs[0]}
+                        radius="md"
+                        alt="post-image"
+                        fit="contain"
+                      />
+                    </UnstyledButton>
+                  </Group>
+                )}
         <Space h="md" />
         <Center>
           <Tooltip
@@ -370,6 +392,93 @@ export const PostPage = () => {
           </>
         </Collapse>
       </Paper>
+
+      {comments && comments.length > 0 ? (
+      comments.map((comment) => (
+      <Paper
+        m="md"
+        shadow="lg"
+        radius="md"
+        p="xl"
+        withBorder
+        key={comment.PostHashHex}
+        className={classes.comment}
+      >
+        <Center>
+          <ActionIcon
+            onClick={() => {
+              navigate(`/wave/${comment.ProfileEntryResponse.Username}`);
+            }}
+        
+            variant="transparent"
+          >
+            
+            <Avatar
+              radius="xl"
+              size="lg"
+              src={`https://node.deso.org/api/v0/get-single-profile-picture/${comment.PosterPublicKeyBase58Check}`}
+            />
+            <Space w="xs" />
+            <Text weight="bold" size="sm">
+              {comment.ProfileEntryResponse.Username}
+            </Text>
+          </ActionIcon>
+        </Center>
+        
+      
+        <Spoiler
+          maxHeight={222}
+          showLabel={
+            <>
+              <Space h="xs" />
+              <Tooltip label="Show More">
+                <IconScriptPlus />
+              </Tooltip>
+            </>
+          }
+          hideLabel={
+            <>
+              <Space h="xs" />
+              <Tooltip label="Show Less">
+                <IconScriptMinus />
+              </Tooltip>
+            </>
+          }
+        >
+          <TypographyStylesProvider>
+            <Space h="sm" />
+            <Text
+              align="center"
+              size="md"
+              className={classes.body}
+              dangerouslySetInnerHTML={{
+                __html: replaceURLs(
+                    comment.Body.replace(/\n/g, "<br> ")       
+                ),
+              }}
+            />
+          </TypographyStylesProvider>
+        </Spoiler>
+
+        {comment.ImageURLs && (
+                  <Group position="center">
+                    <UnstyledButton
+                      
+                    >
+                      <Image
+                        src={comment.ImageURLs[0]}
+                        radius="md"
+                        alt="post-image"
+                        fit="contain"
+                      />
+                    </UnstyledButton>
+                  </Group>
+                )}
+      </Paper>
+      ))
+      ) : (
+        <></>
+      )}
     </>
   );
 };

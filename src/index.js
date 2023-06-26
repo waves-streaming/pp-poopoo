@@ -12,6 +12,7 @@ import { SignAndSubmitTx } from "./routes/sign-and-submit-tx";
 import { MantineProvider } from "@mantine/core";
 import { Wave } from "./routes/wave";
 import { User } from "./routes/user";
+import { PostPage } from "./routes/post-page";
 import {
   LivepeerConfig,
   createReactClient,
@@ -64,6 +65,10 @@ const router = createBrowserRouter([
       {
         path: "/wave/:username",
         element: <Wave />,
+      },
+      {
+        path: "/post/:postHashHex",
+        element: <PostPage />,
       },
     ],
   },

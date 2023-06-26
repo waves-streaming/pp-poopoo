@@ -116,7 +116,7 @@ export const FollowerFeed = () => {
         post.ExtraData?.WavesStreamTitle &&
         post.ExtraData?.WavesStreamTitle !== ""
     );
-    console.log(filteredWaves);
+    
     setFilteredWaves(filtered);
   };
 

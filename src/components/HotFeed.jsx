@@ -57,12 +57,12 @@ const useStyles = createStyles((theme) => ({
 
 export const HotFeed = () => {
   const [opened, { open, close }] = useDisclosure(false);
-
   const { classes } = useStyles();
   const [hotFeed, setHotFeed] = useState([]);
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState("");
   const { currentUser, isLoading } = useContext(DeSoIdentityContext);
+
   useEffect(() => {
     const fetchHotFeed = async () => {
       try {
@@ -201,7 +201,6 @@ export const HotFeed = () => {
                 <Center>
                   <ActionIcon
                     onClick={() => {
-                      
                       navigate(`/wave/${post.ProfileEntryResponse.Username}`);
                     }}
                     variant="transparent"

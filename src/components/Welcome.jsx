@@ -47,7 +47,7 @@ export function Welcome() {
               weight={2222}
               align="center"
             >
-              Waves
+              Your De
             </Title>
             <Divider my="sm" />
             <Divider

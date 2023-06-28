@@ -1,14 +1,11 @@
 import {
   AppShell,
   useMantineTheme,
-  MediaQuery,
-  Aside,
   Container,
   createStyles,
 } from "@mantine/core";
-import { MantineNavBar } from "./MantineNavBar";
+
 import { MantineHeader } from "./MantineHeader";
-import { MantineFooter } from "./MantineFooter";
 
 const useStyles = createStyles((theme) => ({
   main: {
@@ -35,8 +32,6 @@ export const MantineAppShell = ({ children }) => {
       navbarOffsetBreakpoint="sm"
       asideOffsetBreakpoint="sm"
       header={<MantineHeader />}
-      navbar={<MantineNavBar />}
-      footer={<MantineFooter />}
     >
       <Container className={classes.main}>{children}</Container>
     </AppShell>

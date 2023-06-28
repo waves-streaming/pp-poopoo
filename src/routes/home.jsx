@@ -1,60 +1,81 @@
-import { SignAndSubmitTx } from "../routes/sign-and-submit-tx";
-import { Space, Tabs, Text, Center, Paper, Badge } from "@mantine/core";
-import { HotFeed } from "../components/HotFeed";
-import { WavesFeed } from "../components/WavesFeed";
-import { FollowerFeed } from "../components/FollowerFeed";
-import { useState } from "react";
-import { BsFire } from "react-icons/bs";
-import { GiWaveCrest } from "react-icons/gi";
-import { FaUsers } from "react-icons/fa";
+import {
+  Space,
+  Image,
+  Text,
+  Center,
+  Paper,
+  Divider,
+  Button,
+} from "@mantine/core";
+import { DeSoIdentityContext } from "react-deso-protocol";
+import { useState, useContext } from "react";
+import { identity } from "deso-protocol";
+import people from "../assets/people.png";
 
 export const Home = () => {
-  const [activeTab, setActiveTab] = useState("first");
-
+  const { currentUser, isLoading } = useContext(DeSoIdentityContext);
   return (
     <>
-      <Space h="md" />
-      <SignAndSubmitTx />
-      <Space h="md" />
-
-      <Space h="md" />
-      <Tabs radius="md" value={activeTab} onTabChange={setActiveTab}>
-        <Tabs.List position="center">
-          <Tabs.Tab value="first">
+      <div>
+        {currentUser ? (
+          <iframe
+            title="heroswap"
+            width="100%"
+            style={{
+              border: "none",
+              borderRadius: "22px",
+              height: "555px",
+            }}
+            src={`https://heroswap.com/widget?affiliateAddress=${currentUser.PublicKeyBase58Check}`}
+          />
+        ) : (
+          <>
             <Center>
-              <GiWaveCrest size="1.4rem" />
+              <Paper shadow="xl" radius="xl" p="xl" withBorder>
+                <Center>
+                  <Image src={people} width="111px" height="111px" />
+                </Center>
+                <Space h="sm" />
+                <Text align="center" fw={555}>
+                  When you log in to your DeSo Account, your Public Key serves
+                  as your Affiliate Address, and 50% of fees are returned to
+                  your DeSo Wallet.
+                </Text>
+                <Space h="md" />
+                <Text align="center" fw={555}>
+                  Your payout will be automatically distributed to this address
+                  every month after you've earned a minimum of $50 on fees.
+                </Text>
+                <Space h="md" />
+                <Center>
+                  <Button variant="default" onClick={() => identity.login()}>
+                    Login
+                  </Button>
+                  <Space w="md" />
+                  <Button
+                    variant="gradient"
+                    gradient={{ from: "cyan", to: "indigo" }}
+                    onClick={() => identity.login()}
+                  >
+                    Sign Up
+                  </Button>
+                </Center>
+              </Paper>
             </Center>
-            <Text fz="sm">Waves</Text>
-          </Tabs.Tab>
-
-          <Tabs.Tab value="second">
-            <Center>
-              <FaUsers size="1.4rem" />
-            </Center>
-            <Text fz="sm">Follower Feed</Text>
-          </Tabs.Tab>
-
-          <Tabs.Tab value="third">
-            <Center>
-              <BsFire size="1.4rem" />
-            </Center>
-            <Text fz="sm">Hot Feed</Text>
-          </Tabs.Tab>
-        </Tabs.List>
-
-        <Tabs.Panel value="first">
-          <WavesFeed />
-          <Space h={55} />
-        </Tabs.Panel>
-        <Tabs.Panel value="second">
-          <FollowerFeed />
-          <Space h={55} />
-        </Tabs.Panel>
-        <Tabs.Panel value="third">
-          <HotFeed />
-          <Space h={55} />
-        </Tabs.Panel>
-      </Tabs>
+            <Space h="md" />
+            <iframe
+              title="heroswap"
+              width="100%"
+              style={{
+                border: "none",
+                borderRadius: "22px",
+                height: "555px",
+              }}
+              src="https://heroswap.com/widget?affiliateAddress=BC1YLfjx3jKZeoShqr2r3QttepoYmvJGEs7vbYx1WYoNmNW9FY5VUu6"
+            />
+          </>
+        )}
+      </div>
 
       <Space h="md" />
     </>
